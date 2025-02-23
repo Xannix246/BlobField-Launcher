@@ -13,8 +13,14 @@
     "windows": [
       {
         "title": "ja-launcher",
-        "width": 800,
-        "height": 600
+        "width": 1340,
+        "height": 760,
+        "resizable": false,
+        "fullscreen": false,
+        "decorations": false,
+        "closable": true,
+        "minimizable": true,
+        "maximizable": false
       }
     ],
     "security": {
