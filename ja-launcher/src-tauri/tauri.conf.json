@@ -9,18 +9,22 @@
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "window": {}
+  },
   "app": {
     "windows": [
       {
         "title": "ja-launcher",
-        "width": 1340,
-        "height": 760,
+        "width": 1200,
+        "height": 700,
         "resizable": false,
         "fullscreen": false,
         "decorations": false,
         "closable": true,
         "minimizable": true,
-        "maximizable": false
+        "maximizable": false,
+        "devtools": true
       }
     ],
     "security": {

@@ -8,6 +8,10 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "process:default"
+    "process:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "fs:allow-app-read",
+    "fs:allow-app-write"
   ]
 }

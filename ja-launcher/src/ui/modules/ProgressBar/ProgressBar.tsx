@@ -10,8 +10,8 @@ type ProgressBarProps = {
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress, style, message = "Loading resources..." }) => {
     const className = clsx(style, "w-full h-4 bg-gray-300 rounded-full overflow-hidden");
   return (
-    <div className="w-[70%] grid gap-2">
-        {message}
+    <div className="w-[70%] grid gap-2 font-second">
+        // {message}
         <div className={className}>
             <div
                 className="h-full bg-gradient-to-r from-[#cccc00] to-ak-yellow transition-all duration-300"

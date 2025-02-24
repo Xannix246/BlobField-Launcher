@@ -7,10 +7,11 @@ type Button = {
     size?: 'small' | 'medium' | 'large';
     style?: string;
     rounded?: boolean;
+    disabled?: boolean;
     onClick?: () => void;
 }
 
-const Button = ({children, color, size, style, rounded = false}: Button) => {
+const Button = ({children, color, size, style, rounded = false, disabled = false, onClick}: Button) => {
     let appliedColor: string = '';
     let appliedSize: string = '';
     switch(color) {
@@ -43,7 +44,7 @@ const Button = ({children, color, size, style, rounded = false}: Button) => {
         style
     );
     return(
-        <button className={className}>{children}</button>
+        <button className={className} onClick={onClick} disabled={disabled}>{children}</button>
     );
 }
 

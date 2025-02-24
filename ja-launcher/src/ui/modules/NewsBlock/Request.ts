@@ -8,7 +8,8 @@ const images: images[] = [
 const news: news[] = [
     {
         data: "Awesome news!",
-        time: "2025-02-24 1:59:00"
+        time: "2025-02-24 1:59:00",
+        url: "https://tailwindcss.com/"
     },
     {
         data: "Another awesome news!",
@@ -27,10 +28,12 @@ const news: news[] = [
 export type news = {
     data: string;
     time: string;
+    url?: string;
 }
 
 export type images = {
     url: string;
+    link?: string;
 }
 
 export async function getImages(): Promise<images[]> {
