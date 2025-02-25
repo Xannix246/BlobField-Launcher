@@ -8,7 +8,7 @@ type MenuItem = {
 
 type ContextMenuProps = {
   items: MenuItem[];
-  children: React.ReactNode;
+  children?: React.ReactNode;
   style?: string;
 };
 
@@ -32,7 +32,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, style }) => 
     setPosition({ x: event.clientX, y: event.clientY });
     setVisible(true);
   };
-  const className = clsx("absolure w-full h-full", style)
+  const className = clsx("h-full font-second min-w-[200px]", style)
 
   return (
     <div className={className} onContextMenu={handleContextMenu}>
@@ -40,13 +40,13 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, style }) => 
       {visible && (
         <div
           ref={menuRef}
-          className="absolute bg-gray-800 shadow-lg border rounded-md py-1 z-50"
+          className="absolute bg-[#202020]/50 shadow-lg min-w-[200px] border border-[#707070] backdrop-blur-sm rounded-md py-1 z-50"
           style={{ top: position.y, left: position.x }}
         >
           {items.map((item, index) => (
             <div
               key={index}
-              className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+              className="px-4 py-2 hover:bg-[#646464]/25 cursor-pointer"
               onClick={() => {
                 item.onClick();
                 setVisible(false);

@@ -1,5 +1,5 @@
-const images: images[] = [
-    { url: "src/assets/test/1.png" },
+const images: ImageSlider[] = [
+    { url: "src/assets/test/1.png", link: "https://github.com/SuikoAkari/ArkFieldPS" },
     { url: "src/assets/test/2.png" },
     { url: "src/assets/test/3.png" },
     { url: "src/assets/test/4.png" }
@@ -31,12 +31,7 @@ export type news = {
     url?: string;
 }
 
-export type images = {
-    url: string;
-    link?: string;
-}
-
-export async function getImages(): Promise<images[]> {
+export async function getImages(): Promise<ImageSlider[]> {
     setTimeout(() => {}, 5000);
     return [
         ...images

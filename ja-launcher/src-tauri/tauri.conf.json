@@ -10,7 +10,12 @@
     "frontendDist": "../dist"
   },
   "plugins": {
-    "window": {}
+    "window": {
+      "enabled": true
+    },
+    "opener": {
+      "enabled": true
+    }
   },
   "app": {
     "windows": [
@@ -23,8 +28,7 @@
         "decorations": false,
         "closable": true,
         "minimizable": true,
-        "maximizable": false,
-        "devtools": true
+        "maximizable": false
       }
     ],
     "security": {

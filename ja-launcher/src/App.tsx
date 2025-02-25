@@ -26,15 +26,15 @@ const App = () => {
         fetchConfig();
     }, []);
 
-    const saveConfig = async () => {
-        try {
-            await invoke("write_config", { config: { game_directory: "J:\\endfield\\EndField Launcher\\EndField Game", is_installed: true } });
-            console.log("Конфиг сохранён!");
-            console.log(config);
-        } catch (error) {
-            console.error("Ошибка при записи конфигурации:", error);
-        }
-    };
+    // const saveConfig = async () => {
+    //     try {
+    //         await invoke("write_config", { config: { game_directory: "J:\\endfield\\EndField Launcher\\EndField Game", is_installed: true } });
+    //         console.log("Конфиг сохранён!");
+    //         console.log(config);
+    //     } catch (error) {
+    //         console.error("Ошибка при записи конфигурации:", error);
+    //     }
+    // };
 
     return (
         <div className="h-screen w-full bg-[url(/src/assets/base_bg.jpg)] bg-center bg-no-repeat bg-cover font-default">

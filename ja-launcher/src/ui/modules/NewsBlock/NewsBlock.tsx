@@ -1,11 +1,12 @@
 import clsx from "clsx";
-import SimpleImageSlider from "react-simple-image-slider";
 import { useEffect, useState } from "react";
-import { getNews, getImages, news, images } from "./Request";
+import { getNews, getImages, news } from "./Request";
+import SimpleImageSlider from "react-simple-image-slider";
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const NewsBlock = () => {
     const [news, setNews] = useState<news[]>();
-    const [images, setImages] = useState<images[]>();
+    const [images, setImages] = useState<ImageSlider[]>();
     const className = clsx('absolute bottom-0 left-0 p-28 z-5 flex gap-5 justify-center place-items-center font-second');
 
     useEffect(() => {
@@ -39,6 +40,7 @@ const NewsBlock = () => {
                     navStyle={2}
                     navMargin={15}
                     useGPURender={true}
+                    onClick={async (index) => images && await openUrl((images[index]?.link as string))}
                 />}
             </div>
             <div className="w-[600px] h-[170px] bg-black/25 rounded-lg overflow-hidden grid">

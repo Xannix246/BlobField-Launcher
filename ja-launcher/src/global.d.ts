@@ -3,3 +3,8 @@ declare type Config = {
     is_installed: boolean;
     //idk what to add also
 }
+
+declare type ImageSlider = {
+    url: string;
+    link?: string;
+}

@@ -4,10 +4,9 @@
 use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::os::windows::process::CommandExt; // Импортируем трейт
 use serde::{Deserialize, Serialize};
 use tauri::{command, AppHandle, Manager};
-use tokio::runtime::Runtime;
-use std::env;
 
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -56,44 +55,32 @@ fn write_config(app: AppHandle, config: Config) -> Result<(), String> {
 fn is_game_running() -> bool {
     let output = Command::new("tasklist")
         .stdout(Stdio::piped())
+        .stderr(Stdio::null()) // Отключаем вывод ошибок
+        .creation_flags(0x08000000) // Скрываем консольное окно
         .output()
         .expect("Failed to check running processes");
 
     let output_str = String::from_utf8_lossy(&output.stdout);
-    output_str.contains("Endfield_TBeta_OS.exe") // Проверяем, есть ли процесс в списке
+    output_str.contains("Endfield_TBeta_OS.exe")
 }
-
-mod proxy;
 
 #[command]
 fn run_game(app: AppHandle) -> Result<(), String> {
     let config = read_config(app)?;
-
-    // Запуск прокси-сервера
-    let rt = Runtime::new().unwrap();
-    rt.spawn(async {
-        proxy::run_proxy().await;
-    });
-
-    // Установка переменных окружения для прокси
-    env::set_var("HTTP_PROXY", "http://127.0.0.1:5000");
-    env::set_var("HTTPS_PROXY", "http://127.0.0.1:5000");
-
     let exe_path = PathBuf::from(config.game_directory).join("Endfield_TBeta_OS.exe");
 
     if exe_path.exists() {
-        Command::new("cmd")
+        let exe_str = exe_path.to_str().unwrap();
+        let formatted_path = format!("'{}'", exe_str.replace("'", "''")); // Экранирование кавычек
+
+        Command::new("powershell")
             .args([
-                "/C",
-                "powershell",
-                "-Command",
-                "Start-Process",
-                "\"",
-                exe_path.to_str().unwrap(),
-                "\"",
-                "-Verb",
-                "RunAs",
+                "-WindowStyle", "Hidden",
+                "-Command", "Start-Process",
+                formatted_path.as_str(),
+                "-Verb", "RunAs",
             ])
+            .creation_flags(0x08000000) // Скрываем консольное окно
             .spawn()
             .map_err(|e| format!("Failed to launch game: {}", e))?;
         Ok(())

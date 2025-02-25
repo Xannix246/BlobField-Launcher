@@ -1,32 +1,57 @@
 import clsx from "clsx";
-import { FaPlus } from "react-icons/fa6";
+import { IoIosArrowForward } from "react-icons/io";
 import ContextMenu from "../../../utils/ContextMenu";
+import { useEffect, useRef, useState } from "react";
 
 const LeftBar = () => {
+    const [open, setOpen] = useState(false);
     const items = [
-        { label: "Редактировать", onClick: () => console.log("Редактировать") },
-        { label: "Удалить", onClick: () => console.log("Удалить") }
+        { label: "Edit", onClick: () => console.log("click") },
+        { label: "Delete", onClick: () => console.log("click") }
     ];
+    const menuRef = useRef<HTMLDivElement | null>(null);
 
-    const className = clsx('absolute bg-black/75 h-full w-[64px] flex flex-col justify-center place-items-center z-40');
+    
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+
+        if (open) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [open]);
+    
+    const className = clsx(
+        'absolute bg-black/75 h-full w-[390px] translation duration-300 ease-[cubic-bezier(0.8,0.05,0.05,0.8)] flex flex-col z-40 bg-[url(/src/assets/bg.png)] bg-center bg-no-repeat bg-cover',
+        open ? 'left-0' : 'left-[-326px]'
+    );
+    const arrowClassName = clsx(
+        "w-[42px] h-[42px] m-2 translation duration-300 ease-[cubic-bezier(0.8,0.05,0.05,0.8)] hover:bg-white/25 rounded-lg",
+        open && "-rotate-180"
+    );
     return (
-        <div className={className}>
-            <div className="overflow-y-auto scrollbar-hidden grid gap-4">
-                <ContextMenu items={items} style="overflow-y-auto scrollbar-hidden grid gap-4">
-                    <div className="w-[48px] h-[48px] rounded-md bg-gray-800 flex justify-center place-items-center text-[32px] text-bold cursor-pointer">
-                        SC
-                    </div>
-                    <div className="w-[48px] h-[48px] rounded-md bg-gray-800 flex justify-center place-items-center text-[32px] text-bold cursor-pointer">
-                        SC
-                    </div>
-                    <div className="w-[48px] h-[48px] rounded-md bg-gray-800 flex justify-center place-items-center text-[32px] text-bold cursor-pointer">
-                        SC
-                    </div>
-                    <div className="w-[48px] h-[48px] rounded-md bg-gray-800 flex justify-center place-items-center text-[32px] text-bold cursor-pointer">
-                        SC
+        <div ref={menuRef} className={className}>
+            <div className="place-items-end">
+            <IoIosArrowForward className={arrowClassName} onClick={() => setOpen(!open)}/>
+            </div>
+            <div className="overflow-y-auto scrollbar-hidden grid gap-4 p-20">
+                <ContextMenu items={items} style="overflow-y-auto scrollbar-hidden grid gap-4 text-center">
+                    <div className="bg-black/50 p-5 rounded-lg">
+                        Originally there was supposed to be presets here, but there aren't ¯\\_(ツ)_/¯
+                        <br/>
+                        <br/>
+                        Maybe I'll do something here, maybe not
                     </div>
                 </ContextMenu>
-                <FaPlus className="text-white hover:text-gray-200 w-[48px] h-[48px] rounded-md drop-shadow-lg transition duration-150 cursor-pointer" />
             </div>
         </div>
     );

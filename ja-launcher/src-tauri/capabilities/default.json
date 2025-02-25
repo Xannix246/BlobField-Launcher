@@ -12,6 +12,8 @@
     "core:window:allow-close",
     "core:window:allow-minimize",
     "fs:allow-app-read",
-    "fs:allow-app-write"
+    "fs:allow-app-write",
+    "opener:allow-open-url",
+    "opener:allow-default-urls"
   ]
 }
