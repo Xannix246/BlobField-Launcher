@@ -7,13 +7,24 @@
   ],
   "permissions": [
     "core:default",
-    "opener:default",
     "process:default",
     "core:window:allow-close",
     "core:window:allow-minimize",
-    "fs:allow-app-read",
-    "fs:allow-app-write",
-    "opener:allow-open-url",
-    "opener:allow-default-urls"
+    "notification:default",
+    "store:default",
+    "fs:default",
+    "opener:default",
+    "fs:allow-resource-meta",
+    "fs:allow-resource-meta-recursive",
+    "fs:allow-resource-read",
+    "fs:allow-resource-read-recursive",
+    "fs:allow-resource-write",
+    "fs:allow-resource-write-recursive",
+    "fs:allow-write-file",
+    "http:default",
+    {
+      "identifier": "http:allow-fetch",
+      "allow": ["https://www.7-zip.org/*", "https://beyond.hg-cdn.com/*"]
+    }
   ]
 }

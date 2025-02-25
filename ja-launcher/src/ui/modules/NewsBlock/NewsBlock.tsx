@@ -40,6 +40,10 @@ const NewsBlock = () => {
                     navStyle={2}
                     navMargin={15}
                     useGPURender={true}
+                    style={{
+                        borderRadius: "30px",
+                        overflow: "hidden"
+                    }}
                     onClick={async (index) => images && await openUrl((images[index]?.link as string))}
                 />}
             </div>
@@ -51,16 +55,15 @@ const NewsBlock = () => {
                     {news?.length == 0 && <div className="text-center">Failed to fetch news ☹️</div>}
                     {
                         news?.map((title, index) => (
-                            <div className="p-2 flex w-full">
+                            <div className="p-2 flex w-full" key={index}>
                                 {title.url ? (
                                     <a className="flex-1 hover:text-ak-yellow transition duration-150"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         href={title.url}
-                                        key={index}
                                     >{title.data}</a>
                                 ) : (
-                                    <div className="flex-1" key={index}>{title.data}</div>
+                                    <div className="flex-1">{title.data}</div>
                                 )}
                                 <div className="right-0 text-gray-300">{new Date(title.time).toLocaleString(undefined, { dateStyle: 'short' })}</div>
                             </div>

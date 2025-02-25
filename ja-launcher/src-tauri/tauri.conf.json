@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "ja-launcher",
-  "version": "0.1.0",
-  "identifier": "com.ja-launcher.app",
+  "productName": "BlobField Launcher",
+  "version": "0.4.0",
+  "identifier": "BlobField-Launcher",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,15 +12,12 @@
   "plugins": {
     "window": {
       "enabled": true
-    },
-    "opener": {
-      "enabled": true
     }
   },
   "app": {
     "windows": [
       {
-        "title": "ja-launcher",
+        "title": "BlobField Launcher",
         "width": 1200,
         "height": 700,
         "resizable": false,
