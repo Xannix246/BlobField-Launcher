@@ -24,7 +24,7 @@
     "http:default",
     {
       "identifier": "http:allow-fetch",
-      "allow": ["https://www.7-zip.org/*", "https://beyond.hg-cdn.com/*"]
+      "allow": ["https://www.7-zip.org/*", "https://beyond.hg-cdn.com/*", "https://github.com/Xannix246/BlobField-Launcher/*"]
     }
   ]
 }

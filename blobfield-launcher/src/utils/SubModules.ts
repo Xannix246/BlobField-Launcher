@@ -4,5 +4,9 @@ import { Config } from "@utils/index";
 const config = new Config();
 
 export async function getFullPath(): Promise<string> {
-    return await join(await config.getValue<string>('gamePath'), await config.getValue<string>('gameExecutable'));
+    try {
+        return await join(await config.getValue<string>('gamePath'), await config.getValue<string>('gameExecutable'))
+    } catch {
+        return "";
+    };
 }

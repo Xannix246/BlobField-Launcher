@@ -17,6 +17,7 @@ export default defineConfig(async () => ({
       '@utils': path.resolve(__dirname, 'src/utils'),
       '@modules': path.resolve(__dirname, 'src/ui/modules'),
       '@base': path.resolve(__dirname, 'src/ui/base'),
+      '@data': path.resolve(__dirname, 'src/data'),
     },
   },
 

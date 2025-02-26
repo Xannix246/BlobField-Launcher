@@ -9,7 +9,8 @@
     "paths": {
       "@utils/*": ["utils/*"],
       "@modules/*": ["ui/modules/*"],
-      "@base/*": ["ui/base/*"]
+      "@base/*": ["ui/base/*"],
+      "@data/*": ["data/*"]
     },
 
     /* Bundler mode */

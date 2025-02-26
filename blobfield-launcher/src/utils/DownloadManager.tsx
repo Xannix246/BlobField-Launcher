@@ -1,10 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { resourceDir } from "@tauri-apps/api/path";
 import { listen } from "@tauri-apps/api/event";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { ProgressBar } from "@modules/index";
+import { BaseConfig } from "@data/index";
 
 interface DownloadState {
     progress: number;
@@ -38,13 +39,13 @@ export const useDownloadStore = create<DownloadState>((set) => ({
     stopDownload: () => set({ isDownloading: false, isExtracting: false, message: "Done!" }),
 }));
 
-const FILE_COUNT = 8; //8
-//const BASE_URL = "https://huggingface.co/CloudTron/Beyond-2089329/resolve/main/Beyond_Release-2089329-32_os_prod_cbt.7z";
-const BASE_URL = "https://beyond.hg-cdn.com/uXUuLlNbIYmMMTlN/0.5/update/6/1/Windows/0.5.28_U1mgxrslUitdn3hb/packs/Beyond_Release-2089329-32_os_prod_cbt.zip";
-const FILE_NAME = "Beyond_Release-2089329-32_os_prod_cbt.zip";
+const fileCount = BaseConfig.FILE_COUNT;
+const baseUrl = BaseConfig.BASE_URL;
+const fileName = BaseConfig.FILE_NAME;
 
 const DownloadManager = () => {
     const { progress, message, isDownloading, setProgress, setMessage, startDownload, startExtract, stopDownload, stats, setStats, setDownloaded } = useDownloadStore();
+    const [visible, setVisible] = useState(true);
 
     useEffect(() => {
         const unlistenDownload = listen("download_progress", (event: any) => {
@@ -55,10 +56,8 @@ const DownloadManager = () => {
         });
 
         const unlistenExtract = listen("extract_progress", (event: any) => {
-            const [progress, copiedFiles, totalFiles] = event.payload;
-            setProgress(progress);
             setMessage("Unpacking data, please wait...")
-            setStats(`Copied data: ${copiedFiles}/${totalFiles}`)
+            setStats("")
             if (event.payload === "Extraction complete!") {
                 stopDownload();
             }
@@ -76,16 +75,15 @@ const DownloadManager = () => {
     }, [isDownloading])
 
     const downloadAndExtract = async () => {
-        const RESOURCE_PATH = await resourceDir();
+        const resourcePath = await resourceDir();
         startDownload();
-        for (let i = 1; i <= FILE_COUNT; i++) {
-            const fileUrl = `${BASE_URL}.${String(i).padStart(3, "0")}`;
-            //const fileUrl = BASE_URL;
-            //const filePath = `${RESOURCE_PATH}/temp/${fileUrl.split("/").pop()}`;
+        for (let i = 1; i <= fileCount; i++) {
+            //const fileUrl = `${BASE_URL}.${String(i).padStart(3, "0")}`;
+            const fileUrl = baseUrl;
 
-            setMessage(`Downloading file ${i}/${FILE_COUNT}...`);
+            setMessage(`Downloading file ${i}/${fileCount}...`);
             try {
-                await invoke("download_file", { url: fileUrl, resourcePath: RESOURCE_PATH });
+                await invoke("download_file", { url: fileUrl, resourcePath: resourcePath });
                 continue
             } catch (error) {
                 setMessage(`Error downloading file ${i}: ${error}`);
@@ -96,16 +94,16 @@ const DownloadManager = () => {
         }
 
         startExtract();
-        // setVisible(false);
+        setVisible(false);
         setStats(undefined);
         try {
-            for(let i = 1; i <= FILE_COUNT; i++) {
-                const fileName = `${FILE_NAME}.${String(i).padStart(3, "0")}`;
+            for(let i = 1; i <= fileCount; i++) {
+                //const fileName = `${fileName}.${String(i).padStart(3, "0")}`;
                 await invoke("extract_archive", {
-                    archivePath: `${RESOURCE_PATH}/temp/${fileName}`,
+                    archivePath: `${resourcePath}/temp/${fileName}`,
                     //archivePath: `${RESOURCE_PATH}/temp/test.7z`,
-                    extractPath: `${RESOURCE_PATH}/EndField Game`,
-                    sevenZipPath: `${RESOURCE_PATH}/7z/7z.exe`,
+                    extractPath: `${resourcePath}/EndField Game`,
+                    sevenZipPath: `${resourcePath}/7z/7z.exe`,
                 });
             }
         } catch (error) {
@@ -119,7 +117,7 @@ const DownloadManager = () => {
 
     return (
         <div className="w-full flex flex-col ">
-            {isDownloading && <ProgressBar style="w-full" progress={progress} message={message} stats={stats} visible={true} />}
+            {isDownloading && <ProgressBar style="w-full" progress={progress} message={message} stats={stats} visible={visible} />}
         </div>
     );
 };
