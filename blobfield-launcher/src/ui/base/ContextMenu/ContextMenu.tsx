@@ -1,18 +1,7 @@
 import clsx from "clsx";
 import React, { useState, useRef, useEffect } from "react";
 
-type MenuItem = {
-  label: string;
-  onClick: () => void;
-};
-
-type ContextMenuProps = {
-  items: MenuItem[];
-  children?: React.ReactNode;
-  style?: string;
-};
-
-const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, style }) => {
+const ContextMenu = ({ items, children, style }: ContextMenuProps) => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const menuRef = useRef<HTMLDivElement | null>(null);

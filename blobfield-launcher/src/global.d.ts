@@ -23,3 +23,14 @@ declare type SettingsGroup = {
     settings: Setting[];
     style?: string;
 }
+
+declare type MenuItem = {
+  label: string;
+  onClick: () => void;
+};
+
+declare type ContextMenuProps = {
+    items: { label: string; onClick: () => void }[];
+    children: React.ReactNode;
+    style?: string;
+}

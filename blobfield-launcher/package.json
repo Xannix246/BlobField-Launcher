@@ -10,14 +10,17 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@radix-ui/react-popover": "^1.1.6",
     "@tailwindcss/vite": "^4.0.8",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-fs": "^2.2.0",
     "@tauri-apps/plugin-http": "^2.3.0",
     "@tauri-apps/plugin-notification": "^2.2.1",
     "@tauri-apps/plugin-opener": "^2.2.5",
     "@tauri-apps/plugin-process": "^2.2.0",
     "@tauri-apps/plugin-store": "^2.2.0",
+    "@tauri-apps/plugin-updater": "^2.5.1",
     "@tauri-apps/plugin-window-state": "^2.2.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",

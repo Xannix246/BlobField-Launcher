@@ -3,12 +3,13 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useEffect, useRef, useState } from "react";
 import { ContextMenu } from "@base/index";
 
+const items = [
+    { label: "Option 1", onClick: () => alert("Option 1") },
+    { label: "Option 2", onClick: () => alert("Option 2") },
+]
+
 const LeftBar = () => {
     const [open, setOpen] = useState(false);
-    const items = [
-        { label: "Edit", onClick: () => console.log("click") },
-        { label: "Delete", onClick: () => console.log("click") }
-    ];
     const menuRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -47,7 +48,7 @@ const LeftBar = () => {
                 }} />
             </div>
             <div className="overflow-y-auto scrollbar-hidden grid gap-4 p-20">
-                <ContextMenu items={items} style="overflow-y-auto scrollbar-hidden grid gap-4 text-center">
+                <ContextMenu items={items}>
                     <div className="bg-black/50 p-5 rounded-lg">
                         Originally there was supposed to be presets here, but there aren't ¯\\_(ツ)_/¯
                         <br />

@@ -21,6 +21,11 @@
     "fs:allow-resource-write",
     "fs:allow-resource-write-recursive",
     "fs:allow-write-file",
+    {
+      "identifier": "fs:default",
+      "allow": ["*/**"]
+    },
+    "dialog:default",
     "http:default",
     {
       "identifier": "http:allow-fetch",

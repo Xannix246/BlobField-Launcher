@@ -1,25 +1,29 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use futures_util::stream::StreamExt;
+use reqwest::header;
+use reqwest::Client;
+use std::fs;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::os::windows::process::CommandExt;
+use std::path::Path;
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::thread;
 use tauri::Emitter;
-use reqwest::Client;
-use std::path::PathBuf;
-use reqwest::header;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
-use std::io::BufReader;
-use std::io::BufRead;
-use std::fs;
-use tokio::time::{Instant, Duration};
-use futures_util::stream::StreamExt;
-use std::path::Path;
 use tokio::task;
+use tokio::time::{Duration, Instant};
 
 #[tauri::command]
-async fn download_file(url: String, resource_path: String, window: tauri::Window) -> Result<(), String> {
+async fn download_file(
+    url: String,
+    resource_path: String,
+    window: tauri::Window,
+) -> Result<(), String> {
     let filename = url.split('/').last().ok_or("Invalid URL")?;
     let temp_dir = format!("{}/temp", resource_path);
     let file_path = format!("{}/{}", temp_dir, filename);
@@ -35,10 +39,12 @@ async fn download_file(url: String, resource_path: String, window: tauri::Window
         0
     };
 
-    println!("Resuming download: {} -> {} ({} bytes downloaded)", url, file_path, downloaded_size);
+    println!(
+        "Resuming download: {} -> {} ({} bytes downloaded)",
+        url, file_path, downloaded_size
+    );
 
-    let mut request = client.get(&url)
-        .header("User-Agent", "Mozilla/5.0");
+    let mut request = client.get(&url).header("User-Agent", "Mozilla/5.0");
     if downloaded_size > 0 {
         request = request.header(header::RANGE, format!("bytes={}-", downloaded_size));
     }
@@ -74,7 +80,9 @@ async fn download_file(url: String, resource_path: String, window: tauri::Window
                 0.0
             };
 
-            window.emit("download_progress", (progress, speed, total_size)).unwrap();
+            window
+                .emit("download_progress", (progress, speed, total_size))
+                .unwrap();
         }
     }
 
@@ -94,10 +102,14 @@ async fn extract_archive(
     task::spawn_blocking(move || {
         let archive_dir = Path::new(&extract_path_clone);
         if !archive_dir.exists() {
-            fs::create_dir_all(&archive_dir).map_err(|e| e.to_string()).unwrap();
+            fs::create_dir_all(&archive_dir)
+                .map_err(|e| e.to_string())
+                .unwrap();
         }
 
-        window.emit("extract_progress", "Extracting data, please wait...").unwrap();
+        window
+            .emit("extract_progress", "Extracting data, please wait...")
+            .unwrap();
         let list_output = Command::new(&seven_zip_path)
             .arg("l")
             .arg(&archive_path)
@@ -106,7 +118,10 @@ async fn extract_archive(
         let total_files = match list_output {
             Ok(output) if output.status.success() => {
                 let output_str = String::from_utf8_lossy(&output.stdout);
-                output_str.lines().filter(|line| line.contains(" D.")).count() as u64
+                output_str
+                    .lines()
+                    .filter(|line| line.contains(" D."))
+                    .count() as u64
             }
             _ => 0,
         };
@@ -136,7 +151,9 @@ async fn extract_archive(
                             0.0
                         };
 
-                        window.emit("extract_progress", (progress, copied_files, total_files)).unwrap();
+                        window
+                            .emit("extract_progress", (progress, copied_files, total_files))
+                            .unwrap();
                     }
                 }
             }
@@ -156,7 +173,8 @@ async fn extract_archive(
 
                 for entry in fs::read_dir(extracted_folder).unwrap() {
                     if let Ok(entry) = entry {
-                        let new_path = extract_path_clone.clone() + "/" + entry.file_name().to_str().unwrap();
+                        let new_path =
+                            extract_path_clone.clone() + "/" + entry.file_name().to_str().unwrap();
                         fs::rename(entry.path(), new_path).unwrap();
                     }
                 }
@@ -164,14 +182,15 @@ async fn extract_archive(
             }
         }
 
-        window.emit("extract_progress", "Extraction complete!").unwrap();
+        window
+            .emit("extract_progress", "Extraction complete!")
+            .unwrap();
     })
     .await
     .map_err(|e| e.to_string())?;
 
     Ok(())
 }
-
 
 fn is_game_running() -> bool {
     let output = Command::new("tasklist")
@@ -207,25 +226,25 @@ fn run_game(game_path: String, app_handle: tauri::AppHandle) -> Result<(), Strin
             .spawn()
             .map_err(|e| format!("Failed to launch game: {}", e))?;
 
-            app_handle.emit("game_started", true).unwrap();
-            thread::spawn(move || {
-                loop {
-                    thread::sleep(Duration::from_secs(5));
-                    if !is_game_running() {
-                        app_handle.emit("game_started", false).unwrap();
-                        break;
-                    }
-                }
-            });
-    
-            Ok(())
-        } else {
-            Err("Game executable not found".to_string())
-        }    
+        app_handle.emit("game_started", true).unwrap();
+        thread::spawn(move || loop {
+            thread::sleep(Duration::from_secs(5));
+            if !is_game_running() {
+                app_handle.emit("game_started", false).unwrap();
+                break;
+            }
+        });
+
+        Ok(())
+    } else {
+        Err("Game executable not found".to_string())
+    }
 }
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())

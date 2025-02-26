@@ -7,9 +7,8 @@ export const SettingsSubmodule = () => {
     return [
         <div key="settings-groups" className="flex flex-col">
             {settingsConfig.map((group) => (
-                <div className="">
+                <div className="" key={group.name}>
                     <button
-                        key={group.name}
                         className={`relative w-full items-center text-black ${group.style} ${selectedGroup === group.name ? "bg-ak-yellow/15" : "hover:bg-black/5 transition duration-150"}`}
                         onClick={() => setSelectedGroup(group.name)}
                     >

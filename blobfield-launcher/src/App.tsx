@@ -2,14 +2,27 @@ import "./css/App.css";
 import "./css/text.css";
 import { getVersion } from '@tauri-apps/api/app';
 import { useEffect, useState } from "react";
-import { DownloadManager } from "@utils/index";
+import { DownloadManager, update, UpdatePopup } from "@utils/index";
 import { GameButton, LeftBar, NewsBlock, Settings, TopBar } from "@modules/index";
+import { check, Update } from "@tauri-apps/plugin-updater";
 
 
 const App = () => {
-    const [version, setVersion] = useState<string>("");
+    const [version, setVersion] = useState("");
+    const [message, setMessage] = useState("");
     const ver = async () => {
         setVersion(await getVersion());
+
+        try {
+            const update = await check();
+            setMessage(`found update ${update?.version} (current: ${version}) from ${update?.date} with notes ${update?.body}\nDo you want install it?`);
+        } catch {
+            console.log("failed to fetch update");
+        }
+    }
+
+    const doUpdate = async () => {
+        await update(await check() as Update);
     }
 
     useEffect(() => {
@@ -18,6 +31,11 @@ const App = () => {
 
     return (
         <div className="h-screen w-full bg-[url(/src/assets/base_bg.jpg)] bg-center bg-no-repeat bg-cover font-default">
+            <div className="absolute w-[320px] h-[200px] bg-center bg-[url(/src/assets/logo_white.png)] bg-no-repeat bg-cover mx-24 my-12"/>
+            {message !== "" && <UpdatePopup 
+                message={message}
+                onConfirm={() => doUpdate()}
+            />}
             <Settings />
             <TopBar />
             <LeftBar />
