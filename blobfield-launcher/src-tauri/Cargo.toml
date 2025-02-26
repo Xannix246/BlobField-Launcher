@@ -1,5 +1,5 @@
 [package]
-name = "ja-launcher"
+name = "blobfield-launcher"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
