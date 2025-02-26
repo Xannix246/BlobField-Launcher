@@ -1,4 +1,5 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
+import path from 'path';
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -11,6 +12,13 @@ export default defineConfig(async () => ({
     react(),
     tailwindcss()
   ],
+  resolve: {
+    alias: {
+      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@modules': path.resolve(__dirname, 'src/ui/modules'),
+      '@base': path.resolve(__dirname, 'src/ui/base'),
+    },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

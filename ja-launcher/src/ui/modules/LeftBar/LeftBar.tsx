@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { IoIosArrowForward } from "react-icons/io";
-import ContextMenu from "../../../utils/ContextMenu";
 import { useEffect, useRef, useState } from "react";
+import { ContextMenu } from "@base/index";
 
 const LeftBar = () => {
     const [open, setOpen] = useState(false);

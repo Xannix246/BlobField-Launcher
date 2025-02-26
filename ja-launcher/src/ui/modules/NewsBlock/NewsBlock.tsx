@@ -41,8 +41,9 @@ const NewsBlock = () => {
                     navMargin={15}
                     useGPURender={true}
                     style={{
-                        borderRadius: "30px",
-                        overflow: "hidden"
+                        borderRadius: "5px",
+                        overflow: "hidden",
+                        cursor: "pointer"
                     }}
                     onClick={async (index) => images && await openUrl((images[index]?.link as string))}
                 />}

@@ -1,12 +1,9 @@
 import "./css/App.css";
 import "./css/text.css";
-import LeftBar from "./ui/modules/LeftBar/LeftBar";
-import NewsBlock from "./ui/modules/NewsBlock/NewsBlock";
-import TopBar from "./ui/modules/TopBar/TopBar";
-import GameButton from "./ui/modules/GameButton";
 import { getVersion } from '@tauri-apps/api/app';
 import { useEffect, useState } from "react";
-import Settings from "./ui/modules/Settings/Settings";
+import { DownloadManager } from "@utils/index";
+import { GameButton, LeftBar, NewsBlock, Settings, TopBar } from "@modules/index";
 
 
 const App = () => {
@@ -24,8 +21,11 @@ const App = () => {
             <Settings />
             <TopBar />
             <LeftBar />
-            <div className="absolute bottom-0 right-0 my-10 z-10 flex flex-nowrap justify-end items-center place-items-center gap-20 w-[90%]">
-                <div className="bg-transparent rounded-full overflow-hidden w-fit h-fit mr-10">
+            <div className="absolute bottom-0 right-0 my-10 z-10 flex flex-nowrap justify-end place-items-center gap-20 w-[90%]">
+                <div className="w-full">
+                    <DownloadManager/>
+                </div>
+                <div className="bg-transparent rounded-full overflow-hidden w-[350px] h-fit mr-10">
                     <div className="rounded-full shadow-inner border border-gray-500 flex">
                         <GameButton />
                     </div>

@@ -2,7 +2,7 @@ import { RiCloseLargeFill } from "react-icons/ri";
 import { FiSettings } from "react-icons/fi";
 import { VscChromeMinimize } from "react-icons/vsc";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { useSettingsStore } from "../Settings/Settings";
+import { useSettingsStore } from "@modules/index";
 
 const TopBar = () => {
     const { isOpen, open } = useSettingsStore();

@@ -1,28 +1,24 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { join } from '@tauri-apps/api/path';
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { useState, useEffect } from "react";
 import { CgMenu } from "react-icons/cg";
-import { exists, BaseDirectory } from '@tauri-apps/plugin-fs';
-import Button from "../base/Button/Button";
+import { exists, BaseDirectory, readDir } from '@tauri-apps/plugin-fs';
+import { getFullPath, useDownloadStore } from "@utils/index";
+import { Button } from "@base/index";
 import clsx from "clsx";
-import Config from "../../utils/ConfigManager";
 
 export default function GameButton() {
+    const { startDownload, isDownloaded, isDownloading } = useDownloadStore();
     const [isRunning, setIsRunning] = useState(false);
     const [isInstalled, setInstalled] = useState(false);
-    const [isInstalling, setInstallation] = useState(false);
-
+    const [hasArchive, setHasArchive] = useState(false);
+    
     useEffect(() => {
         const listenForGameEvents = async () => {
-            const store = new LazyStore("./config.json")
-            const gamePath = await store.get<string>('game-path');
-            const gameExe = await store.get<string>('game-exe');
-            setInstalled(await exists(await join(gamePath as string, gameExe as string), {
-                baseDir: BaseDirectory.Resource,
-            }))
+            setInstalled(await exists(await getFullPath()));
 
+            const dir = await readDir('temp', { baseDir: BaseDirectory.Resource });
+            setHasArchive(dir.length > 0 ? true : false);
             await listen("game_started", (event) => {
                 setIsRunning(event.payload as boolean);
             });
@@ -31,26 +27,22 @@ export default function GameButton() {
         listenForGameEvents();
     }, []);
 
+    useEffect(() => {
+        setInstalled(true);
+    }, [isDownloaded])
+
     const startGame = async () => {
         try {
-            const store = new LazyStore("./config.json");
-            const gamePath = await store.get<string>('game-path');
-            const gameExe = await store.get<string>('game-exe');
-
-            await invoke("run_game", { gamePath: await join(gamePath as string, gameExe as string) });
+            await invoke("run_game", { gamePath: await getFullPath() });
         } catch (error) {
             console.error(error);
         }
     };
 
-    const installation = async () => {
-        setInstallation(true);
-    };
-
-    const className = clsx("hover:bg-[#cccc00] cursor-pointer transition duration-150 disabled:cursor-not-allowed disabled:bg-[#cccc00]")
+    const className = clsx("hover:bg-[#cccc00] w-full cursor-pointer transition duration-150 disabled:cursor-not-allowed disabled:bg-[#cccc00]")
 
     return (
-        <>
+        <div className="w-full flex">
             {
                 isInstalled ? (
                     <Button
@@ -63,19 +55,19 @@ export default function GameButton() {
                     <Button
                         color="yellow"
                         style={className}
-                        disabled={isInstalling}
-                        onClick={installation}
-                    >{isInstalling ? "Installing" : "Install game"}</Button>
+                        disabled={isDownloading}
+                        onClick={startDownload}
+                    >{isDownloading ? "Installing" : (hasArchive ? "Continue download" : "Install game")}</Button>
                 )
             }
             <Button
                 color="yellow" style="hover:bg-[#cccc00] cursor-pointer transition duration-150"
                 onClick={async () => {
-                    new Config().getLazyBlob();
+                    
                 }}
             >
                 <CgMenu className="w-[24px] h-[24px]" />
             </Button>
-        </>
+        </div>
     );
 }
