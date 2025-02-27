@@ -21,30 +21,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Change directory to the launcher folder
+        run: cd BlobField-Launcher/blobfield-launcher
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn' # Set this to npm, yarn or pnpm.
+          cache: 'yarn'
+
+      - name: install frontend dependencies
+        run: yarn install
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: '' # No need to specify targets for Windows.
+          targets: ''
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
 
-      - name: install frontend dependencies
-        run: yarn install # change this to npm or pnpm depending on which one you use.
+      - name: build application
+        run: yarn build
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
+          tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
