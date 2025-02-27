@@ -1,5 +1,4 @@
 name: 'Publish Windows Release'
-
 on:
   workflow_dispatch:
   push:
@@ -21,9 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Change directory to the launcher folder
-        run: cd blobfield-launcher; dir
-
       - name: setup node
         uses: actions/setup-node@v4
         with:
@@ -32,6 +28,7 @@ jobs:
 
       - name: install frontend dependencies
         run: yarn install
+        working-directory: blobfield-launcher
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -45,6 +42,7 @@ jobs:
 
       - name: build application
         run: yarn build
+        working-directory: blobfield-launcher
 
       - uses: tauri-apps/tauri-action@v0
         env:
