@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import { getNews, getImages, news } from "./Request";
+import { getNews, getImages } from "./Request";
 import SimpleImageSlider from "react-simple-image-slider";
 import { openUrl } from '@tauri-apps/plugin-opener';
 
 const NewsBlock = () => {
-    const [news, setNews] = useState<news[]>();
+    const [news, setNews] = useState<News[]>();
     const [images, setImages] = useState<ImageSlider[]>();
     const className = clsx('absolute bottom-0 left-0 p-28 z-5 flex gap-5 justify-center place-items-center font-second');
 
@@ -28,7 +28,7 @@ const NewsBlock = () => {
     return (
         <div className={className}>
             <div className="w-[320px] h-[180px] bg-black/25 rounded-lg overflow-hidden place-content-center">
-                {images?.length == 0 && <div className="text-center">Failed to fetch news ☹️</div>}
+                {images?.length == 0 && <div className="text-center">Failed to fetch news images ☹️</div>}
                 {images?.length !== 0 && <SimpleImageSlider
                     images={images || []}
                     width={320}

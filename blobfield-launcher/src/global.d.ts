@@ -9,6 +9,12 @@ declare type ImageSlider = {
     link?: string;
 }
 
+declare type News = {
+    data: string;
+    time: string;
+    url?: string;
+}
+
 declare type Setting = {
     type: "input" | "select" | "toggle" | "info";
     label?: string;

@@ -29,7 +29,7 @@
     "http:default",
     {
       "identifier": "http:allow-fetch",
-      "allow": ["https://www.7-zip.org/*", "https://beyond.hg-cdn.com/*", "https://github.com/Xannix246/BlobField-Launcher/*", "https://huggingface.co/Xannix-8248/Beyond-Release-2089329/*"]
+      "allow": ["https://www.7-zip.org/*", "https://beyond.hg-cdn.com/*", "https://github.com/Xannix246/BlobField-Launcher/*", "https://huggingface.co/Xannix-8248/Beyond-Release-2089329/*", "https://raw.githubusercontent.com/Xannix246/BlobField-Launcher/*"]
     }
   ]
 }

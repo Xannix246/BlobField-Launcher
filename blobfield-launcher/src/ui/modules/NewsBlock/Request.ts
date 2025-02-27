@@ -1,46 +1,29 @@
-const images: ImageSlider[] = [
-    { url: "src/assets/test/1.png", link: "https://github.com/SuikoAkari/ArkFieldPS" },
-    { url: "src/assets/test/2.png" },
-    { url: "src/assets/test/3.png" },
-    { url: "src/assets/test/4.png" }
-]
-
-const news: news[] = [
-    {
-        data: "Awesome news!",
-        time: "2025-02-24 1:59:00",
-        url: "https://tailwindcss.com/"
-    },
-    {
-        data: "Another awesome news!",
-        time: "2025-02-23 1:59:00"
-    },
-    {
-        data: "And some very looooooooooooong news?",
-        time: "2025-02-22 1:59:00"
-    },
-    {
-        data: "Idk (shrug)",
-        time: "2025-02-21 1:59:00"
-    }
-]
-
-export type news = {
-    data: string;
-    time: string;
-    url?: string;
-}
+import { BaseConfig } from "@data/index";
+import { fetch } from "@tauri-apps/plugin-http";
 
 export async function getImages(): Promise<ImageSlider[]> {
-    setTimeout(() => {}, 5000);
-    return [
-        ...images
-    ]
+    try {
+        const response = await fetch(BaseConfig.IMAGES_URL, { method: "GET" });
+        if (!response.ok) throw new Error("Failed to load images");
+
+        const images: ImageSlider[] = await response.json();
+        return images;
+    } catch (error) {
+        console.error("Error fetching images:", error);
+        return [];
+    }
 }
 
-export async function getNews(): Promise<news[]> {
-    setTimeout(() => {}, 5000);
-    return [
-        ...news
-    ]
+export async function getNews(): Promise<News[]> {
+    try {
+        const response = await fetch(BaseConfig.NEWS_URL, { method: "GET" });
+        if (!response.ok) throw new Error("Failed to load news");
+
+        const news: News[] = await response.json();
+        console.log(response);
+        return news;
+    } catch (error) {
+        console.error("Error fetching news:", error);
+        return [];
+    }
 }

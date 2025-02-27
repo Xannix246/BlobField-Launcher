@@ -14,14 +14,20 @@ export async function getFullPath(): Promise<string> {
 }
 
 export async function setDefaultDirectory() {
-
     await config.setValue("gamePath", await resourceDir() + "\\EndField Game");
     await config.setValue("gameExecutable", "Endfield_TBeta_OS.exe");
     sendNotification({ title: `Default path changed`, body: `Path changed to ${await getFullPath()}` });
 }
 
 export async function customDirectory() {
-    const customPath = await open({ directory: true, multiple: false });
-    config.setValue("gamePath", customPath as string);
-    console.log("edited");
+    try {
+        const customPath = await open({ directory: true, multiple: false });
+        
+        if(customPath === null) return;
+
+        config.setValue("gamePath", customPath as string);
+        console.log("edited");
+    } catch(err) {
+        console.log(err);
+    }
 }
