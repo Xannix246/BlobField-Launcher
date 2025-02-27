@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Change directory to the launcher folder
-        run: cd BlobField-Launcher/blobfield-launcher
+        run: cd blobfield-launcher
 
       - name: setup node
         uses: actions/setup-node@v4
