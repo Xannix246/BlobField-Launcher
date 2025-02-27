@@ -1,4 +1,5 @@
 name: 'Publish Windows Release'
+
 on:
   workflow_dispatch:
   push:
@@ -20,17 +21,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: yarn install
         working-directory: BlobField-Launcher/blobfield-launcher
 
-      - name: install Rust stable
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('BlobField-Launcher/blobfield-launcher/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ''
@@ -40,7 +48,7 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: build application
+      - name: Build application
         run: yarn build
         working-directory: BlobField-Launcher/blobfield-launcher
 
