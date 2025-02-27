@@ -3,7 +3,6 @@ import { settingsConfig } from "./SettingsGroup";
 
 export const SettingsSubmodule = () => {
     const [selectedGroup, setSelectedGroup] = useState(settingsConfig[0].name);
-
     return [
         <div key="settings-groups" className="flex flex-col">
             {settingsConfig.map((group) => (
@@ -23,7 +22,7 @@ export const SettingsSubmodule = () => {
         </div>,
         <div key="settings-content" className="p-4">
             {settingsConfig.find((g) => g.name === selectedGroup)?.settings.map((setting, index) => (
-                <div key={index} className="mb-4 font-second">
+                <div key={index} className={`mb-4 font-second ${setting.containerStyle}`}>
                     <label className={setting.labelStyle}>{setting.label}</label>
                     {setting.type === "input" && <input type="text" defaultValue={setting.value as string} className={setting.style} />}
                     {setting.type === "toggle" && <input type="checkbox" defaultChecked={setting.value as boolean} className={setting.style} />}
@@ -34,6 +33,7 @@ export const SettingsSubmodule = () => {
                             ))}
                         </select>
                     )}
+                    {setting.type === "info" && <div className={setting.style} onClick={setting.onClick}>{setting.value}</div>}
                 </div>
             ))}
         </div>

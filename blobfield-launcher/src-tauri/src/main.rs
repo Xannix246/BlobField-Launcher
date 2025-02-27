@@ -2,21 +2,85 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use futures_util::stream::StreamExt;
-use reqwest::header;
-use reqwest::Client;
+use reqwest::{header, Client};
 use std::fs;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
+use sha2::{Digest, Sha256};
+use serde_json::Value;
 use std::os::windows::process::CommandExt;
-use std::path::Path;
-use std::path::PathBuf;
+use std::{fs::File, io::{BufRead, BufReader, Read}, path::{Path, PathBuf}};
 use std::process::{Command, Stdio};
 use std::thread;
-use tauri::Emitter;
+use tauri::{Emitter, Window};
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 use tokio::task;
 use tokio::time::{Duration, Instant};
+use std::sync::Mutex;
+use rayon::prelude::*;
+
+#[tauri::command]
+async fn check_integrity(
+    window: Window,
+    game_dir: String,
+    manifest_path: String,
+) -> Result<Vec<String>, String> {
+    let manifest_content = std::fs::read_to_string(&manifest_path)
+        .map_err(|e| format!("Error while reading manifest: {}", e))?;
+    let manifest: Value = serde_json::from_str(&manifest_content)
+        .map_err(|e| format!("Error while parsing manifest: {}", e))?;
+    
+    let files_map = manifest["files"]
+        .as_object()
+        .ok_or("Uncorrect manifest format")?;
+
+    let files: Vec<_> = files_map.iter().collect();
+    let total_files = files.len();
+    
+    let checked_files = Arc::new(AtomicUsize::new(0));
+    let missing_files = Arc::new(Mutex::new(Vec::new()));
+
+    files.par_iter().for_each(|(file, file_data)| {
+        let expected_hash = file_data["hash"].as_str().unwrap_or("");
+        let file_path = Path::new(&game_dir).join(file);
+        
+        let is_missing = if !file_path.exists() {
+            true
+        } else {
+            match hash_file(&file_path) {
+                Ok(actual_hash) => actual_hash != expected_hash,
+                Err(_) => true,
+            }
+        };
+
+        if is_missing {
+            let mut missing = missing_files.lock().unwrap();
+            missing.push(file.to_string());
+        }
+
+        let checked = checked_files.fetch_add(1, Ordering::SeqCst) + 1;
+        let progress = (checked as f64 / total_files as f64) * 100.0;
+        let _ = window.emit("integrity_progress", (progress, checked, total_files));
+    });
+
+    let missing_files = Arc::try_unwrap(missing_files).unwrap().into_inner().unwrap();
+    let _ = window.emit("integrity_progress", "Checking complete!").unwrap();
+    Ok(missing_files)
+}
+
+fn hash_file(path: &Path) -> Result<String, std::io::Error> {
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+    let mut hasher = Sha256::new();
+    let mut buffer = [0; 8192];
+
+    while let Ok(n) = reader.read(&mut buffer) {
+        if n == 0 { break; }
+        hasher.update(&buffer[..n]);
+    }
+
+    Ok(format!("{:x}", hasher.finalize()))
+}
 
 #[tauri::command]
 async fn download_file(
@@ -95,24 +159,24 @@ async fn extract_archive(
     archive_path: String,
     extract_path: String,
     seven_zip_path: String,
-    window: tauri::Window,
+    manifest_path: Option<String>,
+    window: Window,
 ) -> Result<(), String> {
+    let archive_path_clone = archive_path.clone();
     let extract_path_clone = extract_path.clone();
 
     task::spawn_blocking(move || {
-        let archive_dir = Path::new(&extract_path_clone);
-        if !archive_dir.exists() {
-            fs::create_dir_all(&archive_dir)
-                .map_err(|e| e.to_string())
-                .unwrap();
+        let extract_dir = Path::new(&extract_path_clone);
+        if !extract_dir.exists() {
+            fs::create_dir_all(&extract_dir).map_err(|e| e.to_string()).unwrap();
         }
 
-        window
-            .emit("extract_progress", "Extracting data, please wait...")
-            .unwrap();
+        window.emit("extract_progress", "Extracting data, please wait...").unwrap();
+
         let list_output = Command::new(&seven_zip_path)
             .arg("l")
             .arg(&archive_path)
+            .creation_flags(0x08000000)
             .output();
 
         let total_files = match list_output {
@@ -120,13 +184,13 @@ async fn extract_archive(
                 let output_str = String::from_utf8_lossy(&output.stdout);
                 output_str
                     .lines()
-                    .filter(|line| line.contains(" D."))
+                    .filter(|line| line.contains(" D.") || line.contains(" A."))
                     .count() as u64
             }
             _ => 0,
         };
 
-        let mut copied_files = 0;
+        let copied_files = Arc::new(AtomicUsize::new(0));
 
         let output = Command::new(&seven_zip_path)
             .arg("x")
@@ -134,6 +198,7 @@ async fn extract_archive(
             .arg("-o".to_string() + &extract_path_clone)
             .arg("-y")
             .stdout(Stdio::piped())
+            .creation_flags(0x08000000)
             .spawn();
 
         if let Ok(mut child) = output {
@@ -143,17 +208,14 @@ async fn extract_archive(
             for line in reader.lines() {
                 if let Ok(line) = line {
                     if line.starts_with("Extracting") {
-                        copied_files += 1;
-
+                        let copied = copied_files.fetch_add(1, Ordering::SeqCst) + 1;
                         let progress = if total_files > 0 {
-                            (copied_files as f64 / total_files as f64) * 100.0
+                            (copied as f64 / total_files as f64) * 100.0
                         } else {
                             0.0
                         };
 
-                        window
-                            .emit("extract_progress", (progress, copied_files, total_files))
-                            .unwrap();
+                        window.emit("extract_progress", (progress, copied, total_files)).unwrap();
                     }
                 }
             }
@@ -161,30 +223,41 @@ async fn extract_archive(
             let _ = child.wait();
         }
 
-        if let Ok(entries) = fs::read_dir(&extract_path_clone) {
-            let folders: Vec<PathBuf> = entries
-                .filter_map(|entry| entry.ok())
-                .filter(|entry| entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false))
-                .map(|entry| entry.path())
-                .collect();
+        if let Some(manifest_path) = manifest_path {
+            eprintln!("Found manifest");
+            if let Ok(manifest_content) = fs::read_to_string(&manifest_path) {
+                if let Ok(manifest) = serde_json::from_str::<Value>(&manifest_content) {
+                    if let Some(files) = manifest["files"].as_object() {
+                        for (relative_path, _) in files.iter() {
+                            let src = Path::new(&extract_path_clone).join(
+                                Path::new(relative_path).file_name().unwrap(),
+                            );
 
-            if folders.len() == 1 {
-                let extracted_folder = &folders[0];
+                            let dest = Path::new(&extract_path_clone).join(relative_path);
 
-                for entry in fs::read_dir(extracted_folder).unwrap() {
-                    if let Ok(entry) = entry {
-                        let new_path =
-                            extract_path_clone.clone() + "/" + entry.file_name().to_str().unwrap();
-                        fs::rename(entry.path(), new_path).unwrap();
+                            if let Some(parent) = dest.parent() {
+                                fs::create_dir_all(parent).unwrap();
+                            }
+
+                            if src.exists() {
+                                fs::rename(&src, &dest).unwrap_or_else(|_| {
+                                    eprintln!("Err: {:?} -> {:?}", src, dest);
+                                });
+                            }
+                        }
                     }
                 }
-                fs::remove_dir(extracted_folder).unwrap();
             }
         }
 
-        window
-            .emit("extract_progress", "Extraction complete!")
-            .unwrap();
+        // Удаляем архив после распаковки
+        if let Err(e) = fs::remove_file(&archive_path_clone) {
+            eprintln!("Ошибка при удалении архива {}: {}", archive_path_clone, e);
+        } else {
+            window.emit("extract_progress", "Archive deleted successfully!").unwrap();
+        }
+
+        window.emit("extract_progress", "Extraction complete!").unwrap();
     })
     .await
     .map_err(|e| e.to_string())?;
@@ -253,7 +326,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             run_game,
             download_file,
-            extract_archive
+            extract_archive,
+            check_integrity
         ])
         .run(tauri::generate_context!())
         .expect("Err");

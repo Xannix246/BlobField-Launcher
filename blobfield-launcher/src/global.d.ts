@@ -10,12 +10,14 @@ declare type ImageSlider = {
 }
 
 declare type Setting = {
-    type: "input" | "select" | "toggle";
-    label: string;
+    type: "input" | "select" | "toggle" | "info";
+    label?: string;
     value: string | boolean;
     options?: string[];
     style?: string;
+    containerStyle?: string;
     labelStyle?: string;
+    onClick?: () => void;
 }
 
 declare type SettingsGroup = {
@@ -33,4 +35,32 @@ declare type ContextMenuProps = {
     items: { label: string; onClick: () => void }[];
     children: React.ReactNode;
     style?: string;
+}
+
+declare type DownloadState = {
+    progress: number;
+    message: string;
+    stats: string | undefined;
+    isDownloading: boolean;
+    isExtracting: boolean;
+    isDownloaded: boolean;
+    setProgress: (progress: number) => void;
+    setStats: (stats: string | undefined) => void;
+    setMessage: (message: string) => void;
+    setDownloaded: (value: boolean) => void;
+    startDownload: () => void | boolean;
+    startExtract: () => void;
+    stopDownload: () => void;
+}
+
+declare type IntegrityState = {
+    progress: number;
+    message: string;
+    stats: string;
+    isScanning: boolean;
+    setProgress: (progress: number) => void;
+    setStats: (stats: string | undefined) => void;
+    setMessage: (message: string) => void;
+    startScan: () => void;
+    stopScan: () => void;
 }

@@ -7,22 +7,6 @@ import { sendNotification } from "@tauri-apps/plugin-notification";
 import { ProgressBar } from "@modules/index";
 import { BaseConfig } from "@data/index";
 
-interface DownloadState {
-    progress: number;
-    message: string;
-    stats: string | undefined;
-    isDownloading: boolean;
-    isExtracting: boolean;
-    isDownloaded: boolean;
-    setProgress: (progress: number) => void;
-    setStats: (stats: string | undefined) => void;
-    setMessage: (message: string) => void;
-    setDownloaded: (value: boolean) => void;
-    startDownload: () => void | boolean;
-    startExtract: () => void;
-    stopDownload: () => void;
-}
-
 export const useDownloadStore = create<DownloadState>((set) => ({
     progress: 0,
     message: "Initializing...",
@@ -51,13 +35,13 @@ const DownloadManager = () => {
         const unlistenDownload = listen("download_progress", (event: any) => {
             const [progress, speed, totalSize] = event.payload;
             setProgress(progress);
-            setMessage("Downloading resources...")
+            setMessage("Downloading resources...");
             setStats(`${progress.toFixed(2)}% (${speed > 1024 ? (speed / 1024).toFixed(2) + " MB/s" : speed + " KB/s"}) | Total size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
         });
 
         const unlistenExtract = listen("extract_progress", (event: any) => {
-            setMessage("Unpacking data, please wait...")
-            setStats("")
+            setMessage("Unpacking data, please wait...");
+            setStats("");
             if (event.payload === "Extraction complete!") {
                 stopDownload();
             }
@@ -74,7 +58,7 @@ const DownloadManager = () => {
         if (isDownloading) downloadAndExtract();
     }, [isDownloading])
 
-    const downloadAndExtract = async () => {
+    async function downloadAndExtract() {
         const resourcePath = await resourceDir();
         startDownload();
         for (let i = 1; i <= fileCount; i++) {
