@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('BlobField-Launcher/blobfield-launcher/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('BlobField-Launcher\blobfield-launcher\yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
