@@ -1,34 +1,52 @@
 name: 'Publish Windows Release'
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - release
-  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: windows-latest
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: ''
 
+    runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+          node-version: lts/*
+          cache: 'yarn' # Set this to npm, yarn or pnpm.
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-      - name: Install dependencies
-        run: |
-          npm install
-          npm run tauri deps
-      - name: Build Tauri app for Windows
-        run: npm run tauri build -- --target x86_64-pc-windows-msvc
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v3
+          targets: '' # No need to specify targets for Windows.
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          name: windows-release
-          path: target/release/bundle/nsis/*
-          
+          workspaces: './src-tauri -> target'
+
+      - name: install frontend dependencies
+        run: yarn install # change this to npm or pnpm depending on which one you use.
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
