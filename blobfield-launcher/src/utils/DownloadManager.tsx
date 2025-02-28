@@ -82,6 +82,7 @@ const DownloadManager = () => {
         setStats(undefined);
         try {
             for(let i = 1; i <= fileCount; i++) {
+                console.log("ok")
                 //const fileName = `${fileName}.${String(i).padStart(3, "0")}`;
                 await invoke("extract_archive", {
                     archivePath: `${resourcePath}/temp/${fileName}`,
@@ -89,14 +90,14 @@ const DownloadManager = () => {
                     extractPath: `${resourcePath}/EndField Game`,
                     sevenZipPath: `${resourcePath}/7z/7z.exe`,
                 });
+                sendNotification({title: "BlobField Launcher", body: "Installation was finished"});
+                setDownloaded(true);
             }
         } catch (error) {
             setMessage(`Extraction failed: ${error}`);
             sendNotification({title: "Installation failed", body: `Extraction failed: ${error}`});
             stopDownload();
         }
-        sendNotification({title: "BlobField Launcher"});
-        setDownloaded(true);
     };
 
     return (
