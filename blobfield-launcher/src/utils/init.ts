@@ -12,11 +12,12 @@ async function init() {
         baseDir: BaseDirectory.Resource,
     });
     const tempDir = await exists("temp", { baseDir: BaseDirectory.Resource });
+    const rescueDir = await exists("rescue", { baseDir: BaseDirectory.Resource });
     const zDir = await exists("7z", { baseDir: BaseDirectory.Resource });
 
-    !gameDir &&
-        (await mkdir("EndField Game", { baseDir: BaseDirectory.Resource }));
+    !gameDir && (await mkdir("EndField Game", { baseDir: BaseDirectory.Resource }));
     !tempDir && (await mkdir("temp", { baseDir: BaseDirectory.Resource }));
+    !rescueDir && (await mkdir("rescue", { baseDir: BaseDirectory.Resource }));
     !zDir && (await mkdir("7z", { baseDir: BaseDirectory.Resource }));
 
     if ((await getFullPath()) === "") {

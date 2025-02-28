@@ -14,8 +14,8 @@ const App = () => {
         setVersion(await getVersion());
 
         try {
-            const update = await check();
-            setMessage(`Found update ${update?.version} (current: ${await getVersion()}) from ${update?.date?.split(" ")[0].split("-").reverse().join(" ")}. Do you want install it?`);
+            const update = await check({ target: "windows-x86_64"});
+            if(update !== null) setMessage(`Found update ${update?.version} (current: ${await getVersion()}) from ${update?.date?.split(" ")[0].split("-").reverse().join(" ")}. Do you want install it?`);
         } catch {
             console.log("failed to fetch update");
         }
