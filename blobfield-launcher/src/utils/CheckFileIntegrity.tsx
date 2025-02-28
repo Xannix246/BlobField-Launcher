@@ -77,7 +77,7 @@ const CheckFileIntegrity = () => {
                 const response = await fetch(BaseConfig.MANIFEST_URL, { method: "GET" });
                 const data = new Uint8Array(await response.arrayBuffer());
 
-                await writeFile(manifest, new Uint8Array(data), {
+                await writeFile("rescue/manifest.json", new Uint8Array(data), {
                     baseDir: BaseDirectory.Resource,
                 });
             } catch (err) {
@@ -90,7 +90,7 @@ const CheckFileIntegrity = () => {
                 const response = await fetch(BaseConfig.ARCHIVES_TABLE, { method: "GET" });
                 const data = new Uint8Array(await response.arrayBuffer());
 
-                await writeFile(manifest, new Uint8Array(data), {
+                await writeFile("rescue/archives.json", new Uint8Array(data), {
                     baseDir: BaseDirectory.Resource,
                 });
             } catch (err) {
