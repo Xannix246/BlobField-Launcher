@@ -223,8 +223,27 @@ async fn extract_archive(
             let _ = child.wait();
         }
 
+        if let Ok(entries) = fs::read_dir(&extract_path_clone) {
+            let sub_dirs: Vec<PathBuf> = entries
+                .filter_map(|e| e.ok())
+                .filter(|e| e.file_type().map(|ft| ft.is_dir()).unwrap_or(false))
+                .map(|e| e.path())
+                .collect();
+
+            if sub_dirs.len() == 1 {
+                let extracted_folder = &sub_dirs[0];
+
+                for entry in fs::read_dir(extracted_folder).unwrap() {
+                    if let Ok(entry) = entry {
+                        let new_path = Path::new(&extract_path_clone).join(entry.file_name());
+                        let _ = fs::rename(entry.path(), new_path);
+                    }
+                }
+                let _ = fs::remove_dir(extracted_folder);
+            }
+        }
+
         if let Some(manifest_path) = manifest_path {
-            eprintln!("Found manifest");
             if let Ok(manifest_content) = fs::read_to_string(&manifest_path) {
                 if let Ok(manifest) = serde_json::from_str::<Value>(&manifest_content) {
                     if let Some(files) = manifest["files"].as_object() {
@@ -232,17 +251,14 @@ async fn extract_archive(
                             let src = Path::new(&extract_path_clone).join(
                                 Path::new(relative_path).file_name().unwrap(),
                             );
-
                             let dest = Path::new(&extract_path_clone).join(relative_path);
 
                             if let Some(parent) = dest.parent() {
-                                fs::create_dir_all(parent).unwrap();
+                                let _ = fs::create_dir_all(parent);
                             }
 
                             if src.exists() {
-                                fs::rename(&src, &dest).unwrap_or_else(|_| {
-                                    eprintln!("Err: {:?} -> {:?}", src, dest);
-                                });
+                                let _ = fs::rename(&src, &dest);
                             }
                         }
                     }
@@ -250,12 +266,7 @@ async fn extract_archive(
             }
         }
 
-        // Удаляем архив после распаковки
-        if let Err(e) = fs::remove_file(&archive_path_clone) {
-            eprintln!("Ошибка при удалении архива {}: {}", archive_path_clone, e);
-        } else {
-            window.emit("extract_progress", "Archive deleted successfully!").unwrap();
-        }
+        let _ = fs::remove_file(&archive_path_clone);
 
         window.emit("extract_progress", "Extraction complete!").unwrap();
     })
