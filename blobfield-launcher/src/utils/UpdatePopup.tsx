@@ -16,7 +16,7 @@ const UpdatePopup = ({ message, onConfirm }: { message: string, onConfirm: () =>
                             Maybe later
                         </button>
                         <button
-                            className="absolute right-0 bottom-0 w-fit bg-white drop-shadow-md px-4 py-2 rounded-lg transition duration-150 hover:bg-black/5 cursor-pointer"
+                            className="absolute right-0 bottom-0 w-fit bg-[#f0f0f0] drop-shadow-md px-4 py-2 rounded-lg transition duration-150 hover:bg-black/5 cursor-pointer"
                             onClick={onConfirm}
                         >
                             Yep!

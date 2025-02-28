@@ -15,14 +15,14 @@ const App = () => {
 
         try {
             const update = await check();
-            setMessage(`found update ${update?.version} (current: ${version}) from ${update?.date} with notes ${update?.body}\nDo you want install it?`);
+            setMessage(`Found update ${update?.version} (current: ${await getVersion()}) from ${update?.date?.split(" ")[0].split("-").reverse().join(" ")}. Do you want install it?`);
         } catch {
             console.log("failed to fetch update");
         }
     }
 
     const doUpdate = async () => {
-        await update(await check() as Update);
+        await update(await check({ target: "windows-x86_64"}) as Update);
     }
 
     useEffect(() => {
@@ -34,7 +34,7 @@ const App = () => {
             <div className="absolute w-[320px] h-[200px] bg-center bg-[url(/src/assets/logo_white.png)] bg-no-repeat bg-cover mx-24 my-12"/>
             {message !== "" && <UpdatePopup 
                 message={message}
-                onConfirm={() => doUpdate()}
+                onConfirm={doUpdate}
             />}
             <Settings />
             <TopBar />

@@ -16,9 +16,8 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNjhEMzYyQzYzNEYyMwpSV1FqVDJNc05vM21BNHpmeStDbEJnb0JiZFBteW9PVGsxdXZEUy9UTVFyWnlIQzdYQVFKY2YwWQo=",
       "endpoints": [
-        "http://localhost:3000/github/latest-release"
+        "https://github.com/Xannix246/BlobField-Launcher/releases/latest/download/latest.json"
       ],
-      "dangerousInsecureTransportProtocol": true,
       "windows": {
         "installMode": "passive"
       }
