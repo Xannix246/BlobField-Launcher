@@ -24,7 +24,6 @@ export async function getNews(): Promise<News[]> {
         if (!response.ok) throw new Error("Failed to load news");
 
         const news: News[] = await response.json();
-        console.log(response);
         return news;
     } catch (error) {
         console.error("Error fetching news:", error);

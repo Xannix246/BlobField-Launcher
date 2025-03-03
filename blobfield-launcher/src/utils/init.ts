@@ -19,6 +19,13 @@ async function init() {
     !tempDir && (await mkdir("temp", { baseDir: BaseDirectory.Resource }));
     !rescueDir && (await mkdir("rescue", { baseDir: BaseDirectory.Resource }));
     !zDir && (await mkdir("7z", { baseDir: BaseDirectory.Resource }));
+    !await config.getUiConfig() && config.setUiConfig({ 
+        enableLeftBar: true, 
+        leftBarContent: "none", 
+        hideLogo: false,
+        hideNewsImages: false, 
+        hideNews: false
+    });
 
     if ((await getFullPath()) === "") {
         config.setValue("gamePath", (await resourceDir()) + "\\EndField Game");

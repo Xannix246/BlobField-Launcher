@@ -16,6 +16,27 @@ class Config {
         await store.save();
         return;
     }
+
+    public async getUiConfig(): Promise<UiConfig> {
+        return (await store.get("uiConfig") as UiConfig);
+    }
+
+    public async setUiConfig({enableLeftBar, leftBarContent, hideLogo, hideNewsImages, hideNews}: UiConfig) {
+        const currentConfig = await store.get("uiConfig") as UiConfig;
+
+        const updatedConfig: UiConfig = {
+            ...currentConfig,
+            ...(enableLeftBar !== undefined && { enableLeftBar }),
+            ...(leftBarContent !== undefined && { leftBarContent }),
+            ...(hideLogo !== undefined && { hideLogo }),
+            ...(hideNewsImages !== undefined && { hideNewsImages }),
+            ...(hideNews !== undefined && { hideNews })
+        };
+
+        await store.set("uiConfig", updatedConfig);
+        await store.save();    
+        return;
+    }
 }
 
 export default Config;

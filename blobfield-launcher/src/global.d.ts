@@ -1,7 +1,9 @@
-declare type Config = {
-    game_directory: string;
-    is_installed: boolean;
-    //idk what to add also
+declare type UiConfig = {
+    enableLeftBar?: boolean;
+    leftBarContent?: "notes" | "news" | "none";
+    hideLogo?: boolean;
+    hideNewsImages?: boolean;
+    hideNews?: boolean;
 }
 
 declare type ImageSlider = {
@@ -18,12 +20,12 @@ declare type News = {
 declare type Setting = {
     type: "input" | "select" | "toggle" | "info";
     label?: string;
-    value: string | boolean;
+    value?: string | boolean;
     options?: string[];
     style?: string;
     containerStyle?: string;
     labelStyle?: string;
-    onClick?: () => void;
+    onEvent?: () => void;
 }
 
 declare type SettingsGroup = {
