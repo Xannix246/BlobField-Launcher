@@ -70,3 +70,14 @@ declare type IntegrityState = {
     startScan: () => void;
     stopScan: () => void;
 }
+
+declare type InstallerConfig = {
+    BASE_URL: string;
+    FILE_NAME: string;
+    FILE_COUNT: number;
+    MANIFEST_URL: string;
+    ARCHIVES_TABLE: string;
+    RESTORE_FILES_URL: string;
+    IMAGES_URL: string;
+    NEWS_URL: string;
+}

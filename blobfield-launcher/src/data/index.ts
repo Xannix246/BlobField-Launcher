@@ -1,1 +1,0 @@
-export { default as BaseConfig } from "./config.json"

@@ -90,7 +90,7 @@ export default function GameButton() {
                 <div className="w-full h-full justify-center hover:bg-[#cccc00] transition duration-150" >
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
-                            <div className="w-[24px] h-[24px] cursor-pointer">
+                            <div className="w-[24px] h-[24px]">
                                 <CgMenu className="w-full h-full" />
                             </div>
                         </PopoverTrigger>

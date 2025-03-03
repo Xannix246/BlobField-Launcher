@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CheckFileIntegrity, DownloadManager, update, UpdatePopup } from "@utils/index";
 import { GameButton, LeftBar, NewsBlock, Settings, TopBar } from "@modules/index";
 import { check, Update } from "@tauri-apps/plugin-updater";
+import { getInstallerConfig } from "@utils/SubModules";
 
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
     const [message, setMessage] = useState("");
     const ver = async () => {
         setVersion(await getVersion());
+        console.log(await getInstallerConfig());
 
         try {
             const update = await check({ target: "windows-x86_64"});

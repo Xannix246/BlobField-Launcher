@@ -31,3 +31,13 @@ export async function customDirectory() {
         console.log(err);
     }
 }
+
+//Promise<InstallerConfig>
+export async function getInstallerConfig(): Promise<any> {
+    const response = await fetch("https://raw.githubusercontent.com/Xannix246/BlobField-Launcher/refs/heads/main/online-data/config.json", { method: "GET" });
+
+    console.log(response);
+    
+    // JSON.parse()
+    return response;
+}
