@@ -32,12 +32,7 @@ export async function customDirectory() {
     }
 }
 
-//Promise<InstallerConfig>
-export async function getInstallerConfig(): Promise<any> {
+export async function getInstallerConfig(): Promise<InstallerConfig> {
     const response = await fetch("https://raw.githubusercontent.com/Xannix246/BlobField-Launcher/refs/heads/main/online-data/config.json", { method: "GET" });
-
-    console.log(response);
-    
-    // JSON.parse()
-    return response;
+    return await JSON.parse(await response.text());
 }

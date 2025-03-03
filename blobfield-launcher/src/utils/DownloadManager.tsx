@@ -5,7 +5,7 @@ import { resourceDir } from "@tauri-apps/api/path";
 import { listen } from "@tauri-apps/api/event";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { ProgressBar } from "@modules/index";
-import { BaseConfig } from "@data/index";
+import { getInstallerConfig } from "@utils/index";
 
 export const useDownloadStore = create<DownloadState>((set) => ({
     progress: 0,
@@ -23,13 +23,19 @@ export const useDownloadStore = create<DownloadState>((set) => ({
     stopDownload: () => set({ isDownloading: false, isExtracting: false, message: "Done!" }),
 }));
 
-const fileCount = BaseConfig.FILE_COUNT;
-const baseUrl = BaseConfig.BASE_URL;
-const fileName = BaseConfig.FILE_NAME;
-
 const DownloadManager = () => {
     const { progress, message, isDownloading, setProgress, setMessage, startDownload, startExtract, stopDownload, stats, setStats, setDownloaded } = useDownloadStore();
     const [visible, setVisible] = useState(true);
+    const [BaseConfig, setBaseConfig] = useState<InstallerConfig>();
+    const fileCount = BaseConfig?.FILE_COUNT;
+    const baseUrl = BaseConfig?.BASE_URL;
+    const fileName = BaseConfig?.FILE_NAME;
+
+    useEffect(() => {
+        (async () => {
+            setBaseConfig(await getInstallerConfig());
+        })();
+    }, []);
 
     useEffect(() => {
         const unlistenDownload = listen("download_progress", (event: any) => {
@@ -61,7 +67,7 @@ const DownloadManager = () => {
     async function downloadAndExtract() {
         const resourcePath = await resourceDir();
         startDownload();
-        for (let i = 1; i <= fileCount; i++) {
+        for (let i = 1; i <= (fileCount as number); i++) {
             //const fileUrl = `${BASE_URL}.${String(i).padStart(3, "0")}`;
             const fileUrl = baseUrl;
 
@@ -81,7 +87,7 @@ const DownloadManager = () => {
         setVisible(false);
         setStats(undefined);
         try {
-            for(let i = 1; i <= fileCount; i++) {
+            for(let i = 1; i <= (fileCount as number); i++) {
                 console.log("ok")
                 //const fileName = `${fileName}.${String(i).padStart(3, "0")}`;
                 await invoke("extract_archive", {

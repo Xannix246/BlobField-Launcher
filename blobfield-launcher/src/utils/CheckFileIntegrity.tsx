@@ -1,11 +1,10 @@
-import { BaseConfig } from "@data/index";
 import { ProgressBar } from "@modules/index";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, join, resourceDir } from "@tauri-apps/api/path";
 import { exists, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 import { sendNotification } from "@tauri-apps/plugin-notification";
-import { Config } from "@utils/index";
+import { Config, getInstallerConfig } from "@utils/index";
 import { useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 
@@ -25,7 +24,14 @@ const CheckFileIntegrity = () => {
     const { progress, message, stats, isScanning, setProgress, setMessage, setStats, stopScan } = UseIntegrityStore();
     const [visible, setVisible] = useState(true);
     const [files, setFiles] = useState("");
+    const [BaseConfig, setBaseConfig] = useState<InstallerConfig>();
     const filesRef = useRef("");
+
+    useEffect(() => {
+        (async () => {
+            setBaseConfig(await getInstallerConfig());
+        })();
+    }, []);
 
     useEffect(() => {
         const unlistenProgress = listen("integrity_progress", (event: any) => {
@@ -74,7 +80,7 @@ const CheckFileIntegrity = () => {
 
         if (!await exists(manifest)) {
             try {
-                const response = await fetch(BaseConfig.MANIFEST_URL, { method: "GET" });
+                const response = await fetch((BaseConfig as InstallerConfig).MANIFEST_URL, { method: "GET" });
                 const data = new Uint8Array(await response.arrayBuffer());
 
                 await writeFile("rescue/manifest.json", new Uint8Array(data), {
@@ -87,7 +93,7 @@ const CheckFileIntegrity = () => {
 
         if (!await exists(archivesPath)) {
             try {
-                const response = await fetch(BaseConfig.ARCHIVES_TABLE, { method: "GET" });
+                const response = await fetch((BaseConfig as InstallerConfig).ARCHIVES_TABLE, { method: "GET" });
                 const data = new Uint8Array(await response.arrayBuffer());
 
                 await writeFile("rescue/archives.json", new Uint8Array(data), {
@@ -118,7 +124,7 @@ const CheckFileIntegrity = () => {
                     setFiles(`${i + 1}/${needToDownload.length}`);
                     console.log()
                     await invoke("download_file", {
-                        url: `${BaseConfig.RESTORE_FILES_URL}${archive}`,
+                        url: `${(BaseConfig as InstallerConfig).RESTORE_FILES_URL}${archive}`,
                         resourcePath: resourcePath
                     });
                     await invoke("extract_archive", {
