@@ -1,8 +1,6 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import Config from "@utils/ConfigManager";
 
-const config = await new Config().getUiConfig();
-
 export const settingsConfig: SettingsGroup[] = [
     {
         name: "Interface",
@@ -14,7 +12,10 @@ export const settingsConfig: SettingsGroup[] = [
                 labelStyle: "flex-1",
                 style: "flex-2",
                 containerStyle: "flex",
-                value: config.enableLeftBar
+                value: (await new Config().getUiConfig()).enableLeftBar,
+                onChange: async (newValue) => {
+                    await new Config().setUiConfig({ enableLeftBar: newValue as boolean });
+                }
             },
             { 
                 type: "select", 
@@ -23,7 +24,10 @@ export const settingsConfig: SettingsGroup[] = [
                 containerStyle: "flex",
                 options: ["notes", "news", "none"], 
                 style: "flex-2 w-full h-[42px] bg-white rounded-lg inset-shadow-sm inset-shadow-gray-200 outline-none",
-                value: config.leftBarContent
+                value: (await new Config().getUiConfig()).leftBarContent,
+                onChange: async (newValue) => {
+                    await new Config().setUiConfig({ leftBarContent: newValue as "notes" | "news" | "none" });
+                }
             },
             {
                 type: "toggle", 
@@ -31,7 +35,10 @@ export const settingsConfig: SettingsGroup[] = [
                 labelStyle: "flex-1",
                 style: "flex-2 w-full h-[42px] bg-black rounded-lg inset-shadow-sm inset-shadow-gray-200 outline-none",
                 containerStyle: "flex justify-center items-center place-content-center",
-                value: config.hideLogo
+                value: (await new Config().getUiConfig()).hideLogo,
+                onChange: async (newValue) => {
+                    await new Config().setUiConfig({ hideLogo: newValue as boolean });
+                }
             },
             {
                 type: "toggle", 
@@ -39,7 +46,10 @@ export const settingsConfig: SettingsGroup[] = [
                 labelStyle: "flex-1",
                 style: "flex-2",
                 containerStyle: "flex",
-                value: config.hideNewsImages
+                value: (await new Config().getUiConfig()).hideNewsImages,
+                onChange: async (newValue) => {
+                    await new Config().setUiConfig({ hideNewsImages: newValue as boolean });
+                }
             },
             {
                 type: "toggle", 
@@ -47,7 +57,10 @@ export const settingsConfig: SettingsGroup[] = [
                 labelStyle: "flex-1",
                 style: "flex-2",
                 containerStyle: "flex",
-                value: config.hideNews
+                value: (await new Config().getUiConfig()).hideNews,
+                onChange: async (newValue) => {
+                    await new Config().setUiConfig({ hideNews: newValue as boolean });
+                }
             }
         ],
         style: "p-2"
@@ -55,18 +68,10 @@ export const settingsConfig: SettingsGroup[] = [
     {
         name: "General",
         settings: [
-            // { type: "toggle", label: "blob", value: false }
             { type: "info", value: "Work in progress"}
         ],
         style: "p-2"
     },
-    // {
-    //     name: "Awesome settings",
-    //     settings: [
-    //         { type: "select", label: "blob", value: "blob_id", options: ["yes", "no"], style: "w-full h-[42px] bg-white rounded-lg inset-shadow-sm inset-shadow-gray-200 outline-none" }
-    //     ],
-    //     style: "p-2"
-    // },
     {
         name: "About",
         settings: [

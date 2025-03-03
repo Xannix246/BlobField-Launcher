@@ -26,7 +26,8 @@ declare type Setting = {
     containerStyle?: string;
     labelStyle?: string;
     onEvent?: () => void;
-}
+    onChange?: (newValue: string | boolean | "notes" | "news" | "none") => void;
+};
 
 declare type SettingsGroup = {
     name: string;

@@ -1,8 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { settingsConfig } from "./SettingsGroup";
+import { useSettingsStore } from "./Settings";
+
+type SettingsSubmodule = {
+    isOpen: boolean;
+    open: (bool: boolean) => void;
+}
 
 export const SettingsSubmodule = () => {
-    const [selectedGroup, setSelectedGroup] = useState(settingsConfig[0].name);
+    const { selectedGroup, setSelectedGroup } = useSettingsStore();
+    const [settingsValues, setSettingsValues] = useState<{ [key: string]: any }>({});
+
+    useEffect(() => {
+        const initialValues: { [key: string]: any } = {};
+        const group = settingsConfig.find((g) => g.name === selectedGroup);
+        if (group) {
+            group.settings.forEach((setting) => {
+                initialValues[setting.label as string] = setting.value;
+            });
+            setSettingsValues(initialValues);
+        }
+    }, []);
+
+    const handleValueChange = (key: string, value: any) => {
+        setSettingsValues(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
 
     return [
         <div key="settings-groups" className="flex flex-col">
@@ -25,22 +50,38 @@ export const SettingsSubmodule = () => {
             {settingsConfig.find((g) => g.name === selectedGroup)?.settings.map((setting, index) => (
                 <div key={index} className={`mb-4 font-second ${setting.containerStyle}`}>
                     <label className={setting.labelStyle}>{setting.label}</label>
-                    {setting.type === "input" && <input type="text" defaultValue={setting.value as string} className={setting.style} />}
+                    {setting.type === "input" && <input
+                        type="text"
+                        value={settingsValues[setting.label as string] || ""}
+                        className={setting.style}
+                        onChange={(e) => handleValueChange(setting.label as string, e.target.value)}
+                    />}
                     {setting.type === "toggle" && (
                         <div className="flex items-center">
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                     type="checkbox"
                                     role="switch"
-                                    defaultChecked={setting.value as boolean}
+                                    checked={settingsValues[setting.label as string] || false}
                                     className="sr-only peer"
+                                    onChange={(e) => {
+                                        handleValueChange(setting.label as string, e.target.checked);
+                                        setting.onChange?.(e.target.checked);
+                                    }}
                                 />
                                 <div className="w-11 h-6 bg-black/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-150 peer-checked:bg-ak-yellow after:shadow-md"></div>
                             </label>
                         </div>
                     )}
                     {setting.type === "select" && (
-                        <select defaultValue={setting.value as string} className={setting.style}>
+                        <select
+                            value={settingsValues[setting.label as string] || ""}
+                            className={setting.style}
+                            onChange={(e) => {
+                                handleValueChange(setting.label as string, e.target.value);
+                                setting.onChange?.(e.target.value);
+                            }}
+                        >
                             {setting.options?.map((option) => (
                                 <option key={option} value={option}>{option}</option>
                             ))}

@@ -4,19 +4,23 @@ import { SettingsSubmodule } from "./SettingsSubmodule";
 import { settingsConfig } from "./SettingsGroup";
 import clsx from "clsx";
 
-interface SettingsStore {
+type SettingsStore = {
     isOpen: boolean;
     open: (bool: boolean) => void;
+    selectedGroup: string;
+    setSelectedGroup: (selectedGroup: string) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>((set) => ({
     isOpen: false,
-    open: (bool: boolean) => set({ isOpen: bool })
+    open: (bool: boolean) => set({ isOpen: bool }),
+    selectedGroup: settingsConfig[0].name,
+    setSelectedGroup: (selectedGroup) => set({selectedGroup})
 }));
 
 const Settings = () => {
     const [settingsTable, settingsData] = SettingsSubmodule();
-    const { isOpen } = useSettingsStore();
+    const { isOpen, selectedGroup } = useSettingsStore();
     const [show, setShow] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const settingsRef = useRef<HTMLDivElement | null>(null);
@@ -47,8 +51,7 @@ const Settings = () => {
     }, [show]);
 
     useEffect(() => {
-        
-    }, [settingsConfig, SettingsSubmodule]);
+    }, [settingsConfig, SettingsSubmodule, selectedGroup]);
 
     const className = clsx(
         isVisible ? "" : "hidden",
