@@ -64,7 +64,7 @@ export const SettingsSubmodule = () => {
                                     role="switch"
                                     checked={settingsValues[setting.label as string] || false}
                                     className="sr-only peer"
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                         handleValueChange(setting.label as string, e.target.checked);
                                         setting.onChange?.(e.target.checked);
                                     }}
@@ -77,7 +77,7 @@ export const SettingsSubmodule = () => {
                         <select
                             value={settingsValues[setting.label as string] || ""}
                             className={setting.style}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                                 handleValueChange(setting.label as string, e.target.value);
                                 setting.onChange?.(e.target.value);
                             }}

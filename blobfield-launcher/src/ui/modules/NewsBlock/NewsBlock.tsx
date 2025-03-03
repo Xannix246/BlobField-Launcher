@@ -3,31 +3,34 @@ import { useEffect, useState } from "react";
 import { getNews, getImages } from "./Request";
 import SimpleImageSlider from "react-simple-image-slider";
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { Config, useUiStore } from "@utils/index";
 
 const NewsBlock = () => {
     const [news, setNews] = useState<News[]>();
     const [images, setImages] = useState<ImageSlider[]>();
     const className = clsx('absolute bottom-0 left-0 p-28 z-5 flex gap-5 justify-center place-items-center font-second');
+    const [config, setConfig] = useState<UiConfig>();
+    const { isUpdated } = useUiStore();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const newsData = await getNews();
                 const imagesData = await getImages();
-
                 setNews(newsData);
                 setImages(imagesData);
+                setConfig(await new Config().getUiConfig());
             } catch (error) {
                 console.error("Error fetching data", error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [isUpdated]);
 
     return (
         <div className={className}>
-            <div className="w-[320px] h-[180px] bg-black/25 rounded-lg overflow-hidden place-content-center">
+            {!config?.hideNewsImages && <div className="w-[320px] h-[180px] bg-black/25 rounded-lg overflow-hidden place-content-center">
                 {images?.length == 0 && <div className="text-center">Failed to fetch news images ☹️</div>}
                 {images?.length !== 0 && <SimpleImageSlider
                     images={images || []}
@@ -47,8 +50,8 @@ const NewsBlock = () => {
                     }}
                     onClick={async (index) => images && await openUrl((images[index]?.link as string))}
                 />}
-            </div>
-            <div className="w-[600px] h-[170px] bg-black/25 rounded-lg overflow-hidden grid">
+            </div>}
+            {!config?.hideNews && <div className="w-[600px] h-[170px] bg-black/25 rounded-lg overflow-hidden grid">
                 <div className="bg-black/50 h-fit">
                     <div className="p-2 bg-ak-yellow text-black w-fit rounded-br-lg font-default">News</div>
                 </div>
@@ -71,7 +74,7 @@ const NewsBlock = () => {
                         ))
                     }
                 </div>
-            </div>
+            </div>}
         </div>
     );
 }

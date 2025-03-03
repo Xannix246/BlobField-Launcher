@@ -74,6 +74,11 @@ declare type IntegrityState = {
     stopScan: () => void;
 }
 
+declare type UiUpdateState = {
+    isUpdated: number;
+    setUpdated: (isUpdated: number) => void;
+}
+
 declare type InstallerConfig = {
     BASE_URL: string;
     FILE_NAME: string;

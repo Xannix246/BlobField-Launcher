@@ -1,4 +1,5 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { relaunch } from "@tauri-apps/plugin-process";
 import Config from "@utils/ConfigManager";
 
 export const settingsConfig: SettingsGroup[] = [
@@ -61,6 +62,13 @@ export const settingsConfig: SettingsGroup[] = [
                 onChange: async (newValue) => {
                     await new Config().setUiConfig({ hideNews: newValue as boolean });
                 }
+            },
+            {
+                type: "info",
+                value: "Restart launcher",
+                style: "p-3 bg-ak-yellow rounded-lg transition duration-150 hover:bg-[#cccc00]",
+                containerStyle: "flex float-right",
+                onEvent: async () => await relaunch()
             }
         ],
         style: "p-2"

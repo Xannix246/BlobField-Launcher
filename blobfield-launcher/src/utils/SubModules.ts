@@ -2,8 +2,14 @@ import { join, resourceDir } from "@tauri-apps/api/path";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Config } from "@utils/index";
+import { create } from "zustand";
 
 const config = new Config();
+
+export const useUiStore = create<UiUpdateState>((set) => ({
+    isUpdated: 1,
+    setUpdated: (isUpdated) => set({ isUpdated })
+}));
 
 export async function getFullPath(): Promise<string> {
     try {

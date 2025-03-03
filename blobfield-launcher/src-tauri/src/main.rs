@@ -2,22 +2,29 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use futures_util::stream::StreamExt;
+use rayon::prelude::*;
 use reqwest::{header, Client};
-use std::fs;
-use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
-use sha2::{Digest, Sha256};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
+use std::fs;
 use std::os::windows::process::CommandExt;
-use std::{fs::File, io::{BufRead, BufReader, Read}, path::{Path, PathBuf}};
 use std::process::{Command, Stdio};
+use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 use std::thread;
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, Read},
+    path::{Path, PathBuf},
+};
 use tauri::{Emitter, Window};
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 use tokio::task;
 use tokio::time::{Duration, Instant};
-use std::sync::Mutex;
-use rayon::prelude::*;
 
 #[tauri::command]
 async fn check_integrity(
@@ -29,21 +36,21 @@ async fn check_integrity(
         .map_err(|e| format!("Error while reading manifest: {}", e))?;
     let manifest: Value = serde_json::from_str(&manifest_content)
         .map_err(|e| format!("Error while parsing manifest: {}", e))?;
-    
+
     let files_map = manifest["files"]
         .as_object()
         .ok_or("Uncorrect manifest format")?;
 
     let files: Vec<_> = files_map.iter().collect();
     let total_files = files.len();
-    
+
     let checked_files = Arc::new(AtomicUsize::new(0));
     let missing_files = Arc::new(Mutex::new(Vec::new()));
 
     files.par_iter().for_each(|(file, file_data)| {
         let expected_hash = file_data["hash"].as_str().unwrap_or("");
         let file_path = Path::new(&game_dir).join(file);
-        
+
         let is_missing = if !file_path.exists() {
             true
         } else {
@@ -63,8 +70,13 @@ async fn check_integrity(
         let _ = window.emit("integrity_progress", (progress, checked, total_files));
     });
 
-    let missing_files = Arc::try_unwrap(missing_files).unwrap().into_inner().unwrap();
-    let _ = window.emit("integrity_progress", "Checking complete!").unwrap();
+    let missing_files = Arc::try_unwrap(missing_files)
+        .unwrap()
+        .into_inner()
+        .unwrap();
+    let _ = window
+        .emit("integrity_progress", "Checking complete!")
+        .unwrap();
     Ok(missing_files)
 }
 
@@ -75,7 +87,9 @@ fn hash_file(path: &Path) -> Result<String, std::io::Error> {
     let mut buffer = [0; 8192];
 
     while let Ok(n) = reader.read(&mut buffer) {
-        if n == 0 { break; }
+        if n == 0 {
+            break;
+        }
         hasher.update(&buffer[..n]);
     }
 
@@ -168,10 +182,14 @@ async fn extract_archive(
     task::spawn_blocking(move || {
         let extract_dir = Path::new(&extract_path_clone);
         if !extract_dir.exists() {
-            fs::create_dir_all(&extract_dir).map_err(|e| e.to_string()).unwrap();
+            fs::create_dir_all(&extract_dir)
+                .map_err(|e| e.to_string())
+                .unwrap();
         }
 
-        window.emit("extract_progress", "Extracting data, please wait...").unwrap();
+        window
+            .emit("extract_progress", "Extracting data, please wait...")
+            .unwrap();
 
         let list_output = Command::new(&seven_zip_path)
             .arg("l")
@@ -215,7 +233,9 @@ async fn extract_archive(
                             0.0
                         };
 
-                        window.emit("extract_progress", (progress, copied, total_files)).unwrap();
+                        window
+                            .emit("extract_progress", (progress, copied, total_files))
+                            .unwrap();
                     }
                 }
             }
@@ -248,9 +268,8 @@ async fn extract_archive(
                 if let Ok(manifest) = serde_json::from_str::<Value>(&manifest_content) {
                     if let Some(files) = manifest["files"].as_object() {
                         for (relative_path, _) in files.iter() {
-                            let src = Path::new(&extract_path_clone).join(
-                                Path::new(relative_path).file_name().unwrap(),
-                            );
+                            let src = Path::new(&extract_path_clone)
+                                .join(Path::new(relative_path).file_name().unwrap());
                             let dest = Path::new(&extract_path_clone).join(relative_path);
 
                             if let Some(parent) = dest.parent() {
@@ -268,7 +287,9 @@ async fn extract_archive(
 
         let _ = fs::remove_file(&archive_path_clone);
 
-        window.emit("extract_progress", "Extraction complete!").unwrap();
+        window
+            .emit("extract_progress", "Extraction complete!")
+            .unwrap();
     })
     .await
     .map_err(|e| e.to_string())?;
@@ -327,6 +348,7 @@ fn run_game(game_path: String, app_handle: tauri::AppHandle) -> Result<(), Strin
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_http::init())

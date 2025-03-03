@@ -12,7 +12,6 @@ const LeftBar = () => {
     const [open, setOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -40,24 +39,26 @@ const LeftBar = () => {
         open && "-rotate-180"
     );
     return (
-        <div ref={menuRef} className={className} onClick={() => setOpen(true)}>
-            <div className="place-items-end">
-                <IoIosArrowForward className={arrowClassName} onClick={(e) => {
-                    e.stopPropagation();
-                    setOpen(!open);
-                }} />
-            </div>
-            <div className="overflow-y-auto scrollbar-hidden grid gap-4 p-20">
-                <ContextMenu items={items}>
-                    <div className="bg-black/50 p-5 rounded-lg">
-                        Originally there was supposed to be presets here, but there aren't ¯\\_(ツ)_/¯
-                        <br />
-                        <br />
-                        Maybe I'll do something here, maybe not
-                    </div>
-                </ContextMenu>
-            </div>
-        </div>
+        <>
+            {<div ref={menuRef} className={className} onClick={() => setOpen(true)}>
+                <div className="place-items-end">
+                    <IoIosArrowForward className={arrowClassName} onClick={(e) => {
+                        e.stopPropagation();
+                        setOpen(!open);
+                    }} />
+                </div>
+                <div className="overflow-y-auto scrollbar-hidden grid gap-4 p-20">
+                    <ContextMenu items={items}>
+                        <div className="bg-black/50 p-5 rounded-lg">
+                            Originally there was supposed to be presets here, but there aren't ¯\\_(ツ)_/¯
+                            <br />
+                            <br />
+                            Maybe I'll do something here, maybe not
+                        </div>
+                    </ContextMenu>
+                </div>
+            </div>}
+        </>
     );
 }
 
