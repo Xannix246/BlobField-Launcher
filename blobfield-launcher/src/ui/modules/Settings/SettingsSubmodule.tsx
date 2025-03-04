@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
-import { settingsConfig } from "./SettingsGroup";
+import { getSettingsConfig } from "./SettingsGroup";
 import { useSettingsStore } from "./Settings";
-
-type SettingsSubmodule = {
-    isOpen: boolean;
-    open: (bool: boolean) => void;
-}
 
 export const SettingsSubmodule = () => {
     const { selectedGroup, setSelectedGroup } = useSettingsStore();
+    const [settingsConfig, setSettingsConfig] = useState<SettingsGroup[]>([]);
     const [settingsValues, setSettingsValues] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
-        const initialValues: { [key: string]: any } = {};
-        const group = settingsConfig.find((g) => g.name === selectedGroup);
-        if (group) {
-            group.settings.forEach((setting) => {
-                initialValues[setting.label as string] = setting.value;
-            });
-            setSettingsValues(initialValues);
-        }
-    }, []);
+        const fetchSettings = async () => {
+            const config = await getSettingsConfig();
+            setSettingsConfig(config);
+            const initialValues: { [key: string]: any } = {};
+            const group = config.find((g) => g.name === selectedGroup);
+            if (group) {
+                group.settings.forEach((setting) => {
+                    initialValues[setting.label as string] = setting.value;
+                });
+                setSettingsValues(initialValues);
+            }
+        };
+        fetchSettings();
+    }, [selectedGroup]);
 
     const handleValueChange = (key: string, value: any) => {
         setSettingsValues(prev => ({

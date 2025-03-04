@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { useEffect, useRef, useState } from "react";
 import { SettingsSubmodule } from "./SettingsSubmodule";
-import { settingsConfig } from "./SettingsGroup";
 import clsx from "clsx";
 
 type SettingsStore = {
@@ -14,7 +13,7 @@ type SettingsStore = {
 export const useSettingsStore = create<SettingsStore>((set) => ({
     isOpen: false,
     open: (bool: boolean) => set({ isOpen: bool }),
-    selectedGroup: settingsConfig[0].name,
+    selectedGroup: "Interface",
     setSelectedGroup: (selectedGroup) => set({selectedGroup})
 }));
 
@@ -51,7 +50,7 @@ const Settings = () => {
     }, [show]);
 
     useEffect(() => {
-    }, [settingsConfig, SettingsSubmodule, selectedGroup]);
+    }, [SettingsSubmodule, selectedGroup]);
 
     const className = clsx(
         isVisible ? "" : "hidden",
