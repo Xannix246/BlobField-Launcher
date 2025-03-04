@@ -1,5 +1,12 @@
 [
     {
+        "data": "Beta Test: DEV Comm//01",
+        "time": "2025-02-25 12:00:00",
+        "url": "https://endfield.gryphline.com/en-us/news/9582",
+        "image": "https://web-static.hg-cdn.com/upload/image/20250225/2ddd4666c1bc05f2170ce8777a97af1a.jpg",
+        "desc": "The Beta Test officially ended on February 17. Thank you very much for your continued interest and support for Arknights: Endfield! (test news btw)"
+    },
+    {
         "data": "First public release (v0.6.1)",
         "time": "2025-02-28 05:30:00",
         "url": "https://github.com/Xannix246/BlobField-Launcher/releases/tag/app-v0.6.1"
