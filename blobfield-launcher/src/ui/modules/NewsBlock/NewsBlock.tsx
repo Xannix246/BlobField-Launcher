@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getNews, getImages } from "./Request";
 import SimpleImageSlider from "react-simple-image-slider";
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { Config, useUiStore } from "@utils/index";
+import { Config, parseDate, useUiStore } from "@utils/index";
 
 const NewsBlock = () => {
     const [news, setNews] = useState<News[]>();
@@ -15,10 +15,14 @@ const NewsBlock = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const newsData = await getNews();
-                const imagesData = await getImages();
-                setNews(newsData);
-                setImages(imagesData);
+                setNews(
+                    (await getNews()).sort((a, b) => {
+                        const dateA = parseDate(a.time);
+                        const dateB = parseDate(b.time);
+                        return dateB.getTime() - dateA.getTime();
+                    })
+                );
+                setImages(await getImages());
                 setConfig(await new Config().getUiConfig());
             } catch (error) {
                 console.error("Error fetching data", error);

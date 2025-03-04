@@ -2,7 +2,7 @@ import { ProgressBar } from "@modules/index";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, join, resourceDir } from "@tauri-apps/api/path";
-import { exists, readTextFile, writeFile } from "@tauri-apps/plugin-fs";
+import { readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { Config, getInstallerConfig } from "@utils/index";
 import { useEffect, useRef, useState } from "react";
@@ -78,30 +78,28 @@ const CheckFileIntegrity = () => {
         const manifest = await join(resourcePath, "rescue/manifest.json");
         const archivesPath = await join(resourcePath, "rescue/archives.json");
 
-        if (!await exists(manifest)) {
-            try {
-                const response = await fetch((BaseConfig as InstallerConfig).MANIFEST_URL, { method: "GET" });
-                const data = new Uint8Array(await response.arrayBuffer());
+        try {
+            const response = await fetch((BaseConfig as InstallerConfig).MANIFEST_URL, { method: "GET" });
+            const data = new Uint8Array(await response.arrayBuffer());
 
-                await writeFile("rescue/manifest.json", new Uint8Array(data), {
-                    baseDir: BaseDirectory.Resource,
-                });
-            } catch (err) {
-                return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
-            }
+            await writeFile("rescue/manifest.json", new Uint8Array(data), {
+                baseDir: BaseDirectory.Resource,
+            });
+        } catch (err) {
+            stopScan();
+            return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
         }
 
-        if (!await exists(archivesPath)) {
-            try {
-                const response = await fetch((BaseConfig as InstallerConfig).ARCHIVES_TABLE, { method: "GET" });
-                const data = new Uint8Array(await response.arrayBuffer());
+        try {
+            const response = await fetch((BaseConfig as InstallerConfig).ARCHIVES_TABLE, { method: "GET" });
+            const data = new Uint8Array(await response.arrayBuffer());
 
-                await writeFile("rescue/archives.json", new Uint8Array(data), {
-                    baseDir: BaseDirectory.Resource,
-                });
-            } catch (err) {
-                return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
-            }
+            await writeFile("rescue/archives.json", new Uint8Array(data), {
+                baseDir: BaseDirectory.Resource,
+            });
+        } catch (err) {
+            stopScan();
+            return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
         }
 
         const archives = JSON.parse((await readTextFile(archivesPath)));

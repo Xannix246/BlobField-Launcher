@@ -10,3 +10,18 @@
     --font-second: "Inter", serif;
     --font-default: MainFont;
 }
+
+@layer utilities {
+    .text-shadow {
+      text-shadow: 2px 2px 4px #00000080;
+    }
+    .text-shadow-md {
+      text-shadow: 4px 4px 8px #00000080;
+    }
+    .text-shadow-lg {
+      text-shadow: 6px 6px 12px #00000080;
+    }
+    .text-shadow-none {
+      text-shadow: none;
+    }
+  }

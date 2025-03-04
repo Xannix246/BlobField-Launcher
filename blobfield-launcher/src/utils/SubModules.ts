@@ -19,6 +19,10 @@ export async function getFullPath(): Promise<string> {
     };
 }
 
+export const parseDate = (dateString: string): Date => {
+    return new Date(dateString.replace(' ', 'T'));
+};
+
 export async function setDefaultDirectory() {
     await config.setValue("gamePath", await resourceDir() + "\\EndField Game");
     await config.setValue("gameExecutable", "Endfield_TBeta_OS.exe");

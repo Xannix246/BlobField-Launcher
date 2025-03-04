@@ -51,3 +51,8 @@ body,
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.mask-gradient {
+  mask-image: linear-gradient(to top, transparent, black);
+  -webkit-mask-image: linear-gradient(to top, transparent, black);
+}

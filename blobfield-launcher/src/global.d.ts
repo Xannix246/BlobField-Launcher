@@ -11,10 +11,17 @@ declare type ImageSlider = {
     link?: string;
 }
 
+declare type Note = {
+    id: string;
+    data: string;
+}
+
 declare type News = {
     data: string;
     time: string;
     url?: string;
+    image?: string;
+    desc: string;
 }
 
 declare type Setting = {
