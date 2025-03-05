@@ -42,6 +42,7 @@
     }
   },
   "bundle": {
+    "resources": ["resources/locales"],
     "active": true,
     "targets": "all",
     "icon": [

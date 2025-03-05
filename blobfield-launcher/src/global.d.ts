@@ -4,6 +4,7 @@ declare type UiConfig = {
     hideLogo?: boolean;
     hideNewsImages?: boolean;
     hideNews?: boolean;
+    language?: string;
 }
 
 declare type ImageSlider = {

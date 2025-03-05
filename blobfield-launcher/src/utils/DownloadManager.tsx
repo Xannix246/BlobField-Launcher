@@ -6,6 +6,7 @@ import { listen } from "@tauri-apps/api/event";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { ProgressBar } from "@modules/index";
 import { getInstallerConfig } from "@utils/index";
+import { useTranslation } from "react-i18next";
 
 export const useDownloadStore = create<DownloadState>((set) => ({
     progress: 0,
@@ -18,8 +19,8 @@ export const useDownloadStore = create<DownloadState>((set) => ({
     setStats: (stats) => set({ stats }),
     setMessage: (message) => set({ message }),
     setDownloaded: (value) => set({ isDownloaded: value}),
-    startDownload: () => {set({ isDownloading: true, progress: 0, message: "Starting download..." })},
-    startExtract: () => set({ isExtracting: true, message: "Extracting files..." }),
+    startDownload: () => {set({ isDownloading: true, progress: 0, message: "" })},
+    startExtract: () => set({ isExtracting: true, message: "" }),
     stopDownload: () => set({ isDownloading: false, isExtracting: false, message: "Done!" }),
 }));
 
@@ -30,10 +31,12 @@ const DownloadManager = () => {
     const fileCount = BaseConfig?.FILE_COUNT;
     const baseUrl = BaseConfig?.BASE_URL;
     const fileName = BaseConfig?.FILE_NAME;
+    const { t } = useTranslation();
 
     useEffect(() => {
         (async () => {
             setBaseConfig(await getInstallerConfig());
+            setMessage(t("start download"));
         })();
     }, []);
 
@@ -41,12 +44,12 @@ const DownloadManager = () => {
         const unlistenDownload = listen("download_progress", (event: any) => {
             const [progress, speed, totalSize] = event.payload;
             setProgress(progress);
-            setMessage("Downloading resources...");
-            setStats(`${progress.toFixed(2)}% (${speed > 1024 ? (speed / 1024).toFixed(2) + " MB/s" : speed + " KB/s"}) | Total size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
+            setMessage(t("download message"));
+            setStats(t("download stat", {progress: progress.toFixed(2), speed: speed > 1024 ? (speed / 1024).toFixed(2) + " MB/s" : speed + " KB/s", totalSize: (totalSize / 1024 / 1024).toFixed(2)}));
         });
 
         const unlistenExtract = listen("extract_progress", (event: any) => {
-            setMessage("Unpacking data, please wait...");
+            setMessage(t("unpacking"));
             setStats("");
             if (event.payload === "Extraction complete!") {
                 stopDownload();
@@ -71,24 +74,23 @@ const DownloadManager = () => {
             //const fileUrl = `${BASE_URL}.${String(i).padStart(3, "0")}`;
             const fileUrl = baseUrl;
 
-            setMessage(`Downloading file ${i}/${fileCount}...`);
+            setMessage(t("download progress", {file: i, fileCount}));
             try {
                 await invoke("download_file", { url: fileUrl, resourcePath: resourcePath });
                 continue
             } catch (error) {
-                setMessage(`Error downloading file ${i}: ${error}`);
-                sendNotification({title: "Downloading failed", body: `Error downloading file ${i}: ${error}`});
+                sendNotification({title: t("notification download error title"), body: t("notification download error body", {file: i, error})});
                 stopDownload();
                 return;
             }
         }
 
         startExtract();
+        setMessage(t("start extract"));
         setVisible(false);
         setStats(undefined);
         try {
             for(let i = 1; i <= (fileCount as number); i++) {
-                console.log("ok")
                 //const fileName = `${fileName}.${String(i).padStart(3, "0")}`;
                 await invoke("extract_archive", {
                     archivePath: `${resourcePath}/temp/${fileName}`,
@@ -96,12 +98,12 @@ const DownloadManager = () => {
                     extractPath: `${resourcePath}/EndField Game`,
                     sevenZipPath: `${resourcePath}/7z/7z.exe`,
                 });
-                sendNotification({title: "BlobField Launcher", body: "Installation was finished"});
+                sendNotification({title: "BlobField Launcher", body: t("notification download finish")});
                 setDownloaded(true);
             }
         } catch (error) {
             setMessage(`Extraction failed: ${error}`);
-            sendNotification({title: "Installation failed", body: `Extraction failed: ${error}`});
+            sendNotification({title: t("notification download fail"), body: t("notification download fail body", {error})});
             stopDownload();
         }
     };

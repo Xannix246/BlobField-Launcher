@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { getSettingsConfig } from "./SettingsGroup";
 import { useSettingsStore } from "./Settings";
+import { useTranslation } from "react-i18next";
 
 export const SettingsSubmodule = () => {
     const { selectedGroup, setSelectedGroup } = useSettingsStore();
     const [settingsConfig, setSettingsConfig] = useState<SettingsGroup[]>([]);
     const [settingsValues, setSettingsValues] = useState<{ [key: string]: any }>({});
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         const fetchSettings = async () => {
-            const config = await getSettingsConfig();
+            const config = await getSettingsConfig(t, i18n.languages as string[], i18n, setSelectedGroup);
             setSettingsConfig(config);
             const initialValues: { [key: string]: any } = {};
             const group = config.find((g) => g.name === selectedGroup);
@@ -21,7 +23,7 @@ export const SettingsSubmodule = () => {
             }
         };
         fetchSettings();
-    }, [selectedGroup]);
+    }, [selectedGroup, t]);
 
     const handleValueChange = (key: string, value: any) => {
         setSettingsValues(prev => ({

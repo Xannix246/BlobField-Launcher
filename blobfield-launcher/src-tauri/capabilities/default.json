@@ -21,6 +21,7 @@
     "fs:allow-resource-write",
     "fs:allow-resource-write-recursive",
     "fs:allow-write-file",
+    "os:default",
     {
       "identifier": "fs:default",
       "allow": ["*/**"]

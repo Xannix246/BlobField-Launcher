@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useEffect, useRef, useState } from "react";
 import { SettingsSubmodule } from "./SettingsSubmodule";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 
 type SettingsStore = {
     isOpen: boolean;
@@ -13,22 +14,27 @@ type SettingsStore = {
 export const useSettingsStore = create<SettingsStore>((set) => ({
     isOpen: false,
     open: (bool: boolean) => set({ isOpen: bool }),
-    selectedGroup: "Interface",
+    selectedGroup: "",
     setSelectedGroup: (selectedGroup) => set({selectedGroup})
 }));
 
 const Settings = () => {
     const [settingsTable, settingsData] = SettingsSubmodule();
-    const { isOpen, selectedGroup } = useSettingsStore();
+    const { isOpen, selectedGroup, setSelectedGroup } = useSettingsStore();
     const [show, setShow] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const settingsRef = useRef<HTMLDivElement | null>(null);
+    const { t } = useTranslation();
 
     const handleClickOutside = (e: MouseEvent) => {
         if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
             useSettingsStore.getState().open(false);
         }
     };
+
+    useEffect(() => {
+        setSelectedGroup(t("interface"))
+    }, []);
 
     useEffect(() => {
         if (isOpen) {

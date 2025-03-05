@@ -21,7 +21,7 @@ class Config {
         return (await store.get("uiConfig") as UiConfig);
     }
 
-    public async setUiConfig({enableLeftBar, leftBarContent, hideLogo, hideNewsImages, hideNews}: UiConfig) {
+    public async setUiConfig({enableLeftBar, leftBarContent, hideLogo, hideNewsImages, hideNews, language}: UiConfig) {
         const currentConfig = await store.get("uiConfig") as UiConfig;
 
         const updatedConfig: UiConfig = {
@@ -30,7 +30,8 @@ class Config {
             ...(leftBarContent !== undefined && { leftBarContent }),
             ...(hideLogo !== undefined && { hideLogo }),
             ...(hideNewsImages !== undefined && { hideNewsImages }),
-            ...(hideNews !== undefined && { hideNews })
+            ...(hideNews !== undefined && { hideNews }),
+            ...(language !== undefined && { language })
         };
 
         await store.set("uiConfig", updatedConfig);

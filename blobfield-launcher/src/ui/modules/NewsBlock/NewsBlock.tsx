@@ -4,6 +4,7 @@ import { getNews, getImages } from "./Request";
 import SimpleImageSlider from "react-simple-image-slider";
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { Config, parseDate, useUiStore } from "@utils/index";
+import { useTranslation } from "react-i18next";
 
 const NewsBlock = () => {
     const [news, setNews] = useState<News[]>();
@@ -11,6 +12,7 @@ const NewsBlock = () => {
     const className = clsx('absolute bottom-0 left-0 p-28 z-5 flex gap-5 justify-center place-items-center font-second');
     const [config, setConfig] = useState<UiConfig>();
     const { isUpdated } = useUiStore();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,7 +37,7 @@ const NewsBlock = () => {
     return (
         <div className={className}>
             {!config?.hideNewsImages && <div className="w-[320px] h-[180px] bg-black/25 rounded-lg overflow-hidden place-content-center">
-                {images?.length == 0 && <div className="text-center">Failed to fetch news images ☹️</div>}
+                {images?.length == 0 && <div className="text-center">{t("images error")}</div>}
                 {images?.length !== 0 && <SimpleImageSlider
                     images={images || []}
                     width={320}
@@ -57,10 +59,10 @@ const NewsBlock = () => {
             </div>}
             {!config?.hideNews && <div className="w-[600px] h-[170px] bg-black/25 rounded-lg overflow-hidden grid">
                 <div className="bg-black/50 h-fit">
-                    <div className="p-2 bg-ak-yellow text-black w-fit rounded-br-lg font-default">News</div>
+                    <div className="p-2 bg-ak-yellow text-black w-fit rounded-br-lg font-default">{t("news")}</div>
                 </div>
                 <div className="overflow-y-scroll">
-                    {news?.length == 0 && <div className="text-center">Failed to fetch news ☹️</div>}
+                    {news?.length == 0 && <div className="text-center">{t("news error")}</div>}
                     {
                         news?.map((title, index) => (
                             <div className="p-2 flex w-full" key={index}>

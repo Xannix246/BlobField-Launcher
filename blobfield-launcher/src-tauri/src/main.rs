@@ -348,6 +348,7 @@ fn run_game(game_path: String, app_handle: tauri::AppHandle) -> Result<(), Strin
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())

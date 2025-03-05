@@ -8,6 +8,7 @@ import { Button } from "@base/index";
 import clsx from "clsx";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { Popover, PopoverTrigger, PopoverContent, PopoverPortal } from "@radix-ui/react-popover";
+import { useTranslation } from "react-i18next";
 
 export default function GameButton() {
     const { startDownload, isDownloading } = useDownloadStore();
@@ -17,6 +18,7 @@ export default function GameButton() {
     const [hasArchive, setHasArchive] = useState(false);
     const [editedDirectory, setEditedDirectory] = useState(false);
     const [open, setOpen] = useState(false);
+    const { t } = useTranslation();
 
     const updateGameStatus = async () => {
         try {
@@ -28,7 +30,7 @@ export default function GameButton() {
             }
         } catch (err) {
             if (!isInstalled) {
-                sendNotification({ title: `Failed to load game directory`, body: `${err}` });
+                sendNotification({ title: t("directory fail"), body: `${err}` });
             }
             setInstalled(false);
         }
@@ -58,7 +60,7 @@ export default function GameButton() {
         try {
             await invoke("run_game", { gamePath: await getFullPath() });
         } catch (err) {
-            sendNotification({ title: `Failed to start game`, body: `${err}` });
+            sendNotification({ title: t("start fail"), body: `${err}` });
         }
     };
 
@@ -73,14 +75,14 @@ export default function GameButton() {
                         style={className}
                         disabled={isRunning || isScanning}
                         onClick={startGame}
-                    >{isRunning ? "Game is running" : (isScanning ? "Scanning" : "Run game")}</Button>
+                    >{isRunning ? t("running") : (isScanning ? t("scanning") : t("run"))}</Button>
                 ) : (
                     <Button
                         color="yellow"
                         style={className}
                         disabled={isDownloading || isScanning}
                         onClick={startDownload}
-                    >{isDownloading ? "Installing" : (hasArchive ? "Continue download" : (isScanning ? "Scanning" : "Install game"))}</Button>
+                    >{isDownloading ? t("installing") : (hasArchive ? t("continue") : (isScanning ? t("scanning") : t("install")))}</Button>
                 )
             }
             {<Button
@@ -102,7 +104,7 @@ export default function GameButton() {
                                         setEditedDirectory(true);
                                         setOpen(false);
                                     }}>
-                                    Set default directory
+                                    {t("default dir")}
                                 </div>
                                 <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
                                     onClick={async () => {
@@ -110,7 +112,7 @@ export default function GameButton() {
                                         setEditedDirectory(true);
                                         setOpen(false);
                                     }}>
-                                    Select game path
+                                    {t("select path")}
                                 </div>
                                 <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
                                     onClick={async () => {
@@ -119,7 +121,7 @@ export default function GameButton() {
                                         }
                                         setOpen(false);
                                     }}>
-                                    Check file integrity
+                                    {t("check files")}
                                 </div>
                             </PopoverContent>
                         </PopoverPortal>

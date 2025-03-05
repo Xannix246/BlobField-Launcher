@@ -5,20 +5,24 @@ import { useEffect, useState } from "react";
 import { CheckFileIntegrity, Config, DownloadManager, update, UpdatePopup, useUiStore } from "@utils/index";
 import { GameButton, LeftBar, NewsBlock, Settings, TopBar } from "@modules/index";
 import { check, Update } from "@tauri-apps/plugin-updater";
+import { useTranslation } from "react-i18next";
 
 const App = () => {
     const [version, setVersion] = useState("");
     const [message, setMessage] = useState("");
     const [config, setConfig] = useState<UiConfig>();
     const { isUpdated } = useUiStore();
+    const { t } = useTranslation();
+    
     const ver = async () => {
         setVersion(await getVersion());
 
         try {
             const update = await check({ target: "windows-x86_64"});
-            if(update !== null) setMessage(`Found update ${update?.version} (current: ${await getVersion()}) from ${update?.date?.split(" ")[0].split("-").reverse().join(" ")}. Do you want install it?`);
+    
+            if(update !== null) setMessage(t('updateMessage', {version: update?.version, currentVersion: await getVersion(), date: update?.date?.split(" ")[0].split("-").reverse().join(" ")}));
         } catch {
-            console.log("failed to fetch update");
+            console.log(t("update fail"));
         }
     }
 
@@ -29,7 +33,7 @@ const App = () => {
     useEffect(() => {
         ver();
         (async () => {
-                await setConfig(await new Config().getUiConfig());
+                setConfig(await new Config().getUiConfig());
             }
         )();
     }, [isUpdated]);
@@ -68,7 +72,7 @@ const App = () => {
                 />
             </div>
             <div className="absolute right-0 bottom-0 m-2 font-second font-light text-xs">
-                Launcher version: {version}
+                {t("launcher version", {version})}
             </div>
         </div>
     );

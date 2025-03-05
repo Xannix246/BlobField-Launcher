@@ -7,6 +7,7 @@ import { getNews } from "@modules/index";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { parseDate, Config } from "@utils/index";
 import { LazyStore } from "@tauri-apps/plugin-store";
+import { useTranslation } from "react-i18next";
 
 const items = [
   { label: "Option 1", onClick: () => alert("Option 1") },
@@ -22,6 +23,7 @@ const LeftBar = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedText, setEditedText] = useState<string>("");
   const noteStore = new LazyStore("./notes.json");
+  const { t } = useTranslation();
 
   async function addNote(note: string) {
     const newNote = {
@@ -124,10 +126,7 @@ const LeftBar = () => {
           <div className="overflow-y-auto scrollbar-hidden grid gap-4 pt-16 pl-16">
             <ContextMenu items={items}>
               <div className="bg-black/50 p-5 rounded-lg">
-                Originally there was supposed to be presets here, but there aren't ¯\\_(ツ)_/¯
-                <br />
-                <br />
-                Maybe I'll do something here, maybe not
+                {t("blob")}
               </div>
             </ContextMenu>
           </div>
@@ -158,7 +157,7 @@ const LeftBar = () => {
                     className="ml-auto text-[#b8b8b8] pr-4 pb-4 cursor-pointer font-second hover:text-ak-yellow transition duration-150"
                     onClick={async () => await openUrl(element.url as string)}
                   >
-                    //Link: ={">"}
+                    //{t("link")}: ={">"}
                   </a>
                 )}
               </div>
@@ -167,7 +166,7 @@ const LeftBar = () => {
         )}
         {config?.leftBarContent == "notes" && (
           <div className="overflow-y-auto h-full scrollbar-hidden flex flex-col pt-8 pl-8">
-            <h1 className="text-ak-yellow text-2xl p-4 float-end text-shadow">Awesome notes</h1>
+            <h1 className="text-ak-yellow text-2xl p-4 float-end text-shadow">{t("notes")}</h1>
             {notes?.map((element, index) => (
               <div
                 className="relative flex flex-col bg-black/50 rounded-lg overflow-clip mb-8 border border-[#3a3a3a] backdrop-blur-sm"
@@ -210,9 +209,9 @@ const LeftBar = () => {
             ))}
             <Button
               style="bg-ak-yellow text-black w-full mb-4 rounded-lg hover:bg-[#cccc00] transition duration-150 cursor-pointer"
-              onClick={() => addNote("Some example text")}
+              onClick={() => addNote(t("note example"))}
             >
-              Add note
+              {t("add note")}
             </Button>
           </div>
         )}

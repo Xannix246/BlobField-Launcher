@@ -1,8 +1,10 @@
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const UpdatePopup = ({ message, onConfirm }: { message: string, onConfirm: () => void }) => {
     const [open, setOpen] = useState(true);
+    const { t } = useTranslation();
 
     return (
         <>
@@ -13,20 +15,20 @@ const UpdatePopup = ({ message, onConfirm }: { message: string, onConfirm: () =>
                         <a 
                             className="text-[#636363] hover:text-[#cccc00] cursor-pointer hover:underline"
                             onClick={async () => await openUrl("https://github.com/Xannix246/BlobField-Launcher/releases/latest")}
-                        >//Release notes ={">"}</a>
+                        >//{t("release notes")} ={">"}</a>
                     </div>
                     <div className="relative h-[70px] flex justify-center gap-4">
                         <button
                             className="absolute left-0 bottom-0 w-fit bg-ak-yellow drop-shadow-md px-4 py-2 rounded-lg transition duration-150 hover:bg-[#cccc00] cursor-pointer"
                             onClick={() => setOpen(false)}
                         >
-                            Maybe later
+                            {t("update deny")}
                         </button>
                         <button
                             className="absolute right-0 bottom-0 w-fit bg-[#f0f0f0] drop-shadow-md px-4 py-2 rounded-lg transition duration-150 hover:bg-black/5 cursor-pointer"
                             onClick={onConfirm}
                         >
-                            Yep!
+                            {t("update accept")}
                         </button>
                     </div>
                 </div>

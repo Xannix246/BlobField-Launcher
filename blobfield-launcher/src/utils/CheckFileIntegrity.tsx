@@ -6,21 +6,25 @@ import { readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { Config, getInstallerConfig } from "@utils/index";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { create } from "zustand";
+
 
 export const UseIntegrityStore = create<IntegrityState>((set) => ({
     progress: 0,
-    message: "Initializing...",
+    message: "",
     stats: "",
     isScanning: false,
     setProgress: (progress) => set({ progress }),
     setStats: (stats) => set({ stats }),
     setMessage: (message) => set({ message }),
-    startScan: () => { set({ isScanning: true, progress: 0, message: "Starting check..." }) },
-    stopScan: () => set({ isScanning: false, message: "Done!" }),
+    startScan: () => { set({ isScanning: true, progress: 0, message: "" }) },
+    stopScan: () => set({ isScanning: false, message: "" }),
 }));
 
 const CheckFileIntegrity = () => {
+    const { t } = useTranslation();
+
     const { progress, message, stats, isScanning, setProgress, setMessage, setStats, stopScan } = UseIntegrityStore();
     const [visible, setVisible] = useState(true);
     const [files, setFiles] = useState("");
@@ -30,6 +34,7 @@ const CheckFileIntegrity = () => {
     useEffect(() => {
         (async () => {
             setBaseConfig(await getInstallerConfig());
+            setMessage(t("file check start"));
         })();
     }, []);
 
@@ -37,22 +42,22 @@ const CheckFileIntegrity = () => {
         const unlistenProgress = listen("integrity_progress", (event: any) => {
             const [progress, checked, totalFiles] = event.payload;
             setProgress(progress);
-            setMessage("Checking files...")
-            setStats(`${progress.toFixed(2)}% | Checked: ${checked}/${totalFiles} files`);
+            setMessage(t("file checking"))
+            setStats(t("file checking stat", {progress: progress.toFixed(2), checked, totalFiles }));
         });
 
         const unlistenDownload = listen("download_progress", (event: any) => {
             const [progress, speed] = event.payload;
             setVisible(true);
             setProgress(progress);
-            setMessage("Downloading resources...");
-            setStats(`${progress.toFixed(2)}% (${speed > 1024 ? (speed / 1024).toFixed(2) + " MB/s" : speed + " KB/s"}) | File ${filesRef.current}`);
+            setMessage(t("file downloading"));
+            setStats(t("file downloading stat", {progress: progress.toFixed(2), speed: speed > 1024 ? (speed / 1024).toFixed(2) + " MB/s" : speed + " KB/s", current: filesRef.current}));
         });
 
         const unlistenExtract = listen("extract_progress", () => {
             setVisible(false);
-            setMessage("Unpacking data, please wait...");
-            setStats(`File ${filesRef.current}`);
+            setMessage(t("unpacking"));
+            setStats(t("unpacking stat", {current: filesRef.current}));
         });
 
         return () => {
@@ -87,7 +92,7 @@ const CheckFileIntegrity = () => {
             });
         } catch (err) {
             stopScan();
-            return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
+            return sendNotification({ title: t("notification failed"), body: `${err}` });
         }
 
         try {
@@ -99,7 +104,7 @@ const CheckFileIntegrity = () => {
             });
         } catch (err) {
             stopScan();
-            return sendNotification({ title: "Failed to check file integrity", body: `${err}` });
+            return sendNotification({ title: t("notification failed"), body: `${err}` });
         }
 
         const archives = JSON.parse((await readTextFile(archivesPath)));
@@ -120,7 +125,6 @@ const CheckFileIntegrity = () => {
                 for (let i = 0; i < needToDownload.length; i++) {
                     const archive = needToDownload[i];
                     setFiles(`${i + 1}/${needToDownload.length}`);
-                    console.log()
                     await invoke("download_file", {
                         url: `${(BaseConfig as InstallerConfig).RESTORE_FILES_URL}${archive}`,
                         resourcePath: resourcePath
@@ -134,10 +138,11 @@ const CheckFileIntegrity = () => {
                 }
 
                 stopScan();
+                setMessage(t("file check done"));
                 setVisible(false);
-                sendNotification({ title: "Checking file integrity was completed!", body: (res as Array<string>).length === 0 ? "All files have been successfully checked!" : `${(res as Array<string>).length} files were corrupted or didn't exist and were redownloaded` });
+                sendNotification({ title: t("notification completed body"), body: (res as Array<string>).length === 0 ? t("notification completed") : t("notification fixed", {count: (res as Array<string>).length}) });
             } catch (err) {
-                sendNotification({ title: "Failed to download files", body: `${err}` });
+                sendNotification({ title: t("nofification download failed"), body: `${err}` });
             }
         });
     }

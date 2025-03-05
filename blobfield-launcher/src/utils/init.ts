@@ -4,6 +4,7 @@ import { resourceDir } from "@tauri-apps/api/path";
 import { getFullPath, Config } from "@utils/index";
 import { Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import { locale } from "@tauri-apps/plugin-os";
 
 const config = new Config();
 
@@ -24,7 +25,8 @@ async function init() {
         leftBarContent: "none", 
         hideLogo: false,
         hideNewsImages: false, 
-        hideNews: false
+        hideNews: false,
+        language: await locale() as string
     });
 
     if ((await getFullPath()) === "") {
