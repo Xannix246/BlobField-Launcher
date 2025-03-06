@@ -10,6 +10,7 @@ Idk what else to write here... Still in early development ¯\\_(ツ)_/¯<br>
 # Some screenshots
 ![alt text](docs/image.png)
 ![alt text](docs/image-1.png)
+![alt text](docs/image-2.png)
 
 ## Note
 **All rights to the Arknights: Endfield its trademarks belong to Hypergryph Network Technology Ltd. The author of this repository does not have any intention to use this for illegal or commercial inducements, nor does he intend to replace official products from Hypergryph/Gryphline in any way.**
