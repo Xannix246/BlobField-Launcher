@@ -38,7 +38,7 @@ export const getSettingsConfig = async (t: Function, languages: string[], i18n: 
                     containerStyle: "flex",
                     options: [t("type notes"), t("type news"), t("type none")],
                     style: "flex-2 w-full h-[42px] bg-white rounded-lg inset-shadow-sm inset-shadow-gray-200 outline-none",
-                    value: config.leftBarContent,
+                    value: t(`type ${config.leftBarContent}`),
                     onChange: async (newValue) => {
                         newValue == t("type notes") && (newValue = "notes");
                         newValue == t("type news") && (newValue = "news");
