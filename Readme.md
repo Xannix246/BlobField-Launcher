@@ -14,3 +14,6 @@ Idk what else to write here... Still in early development ¯\\_(ツ)_/¯<br>
 
 ## Note
 **All rights to the Arknights: Endfield its trademarks belong to Hypergryph Network Technology Ltd. The author of this repository does not have any intention to use this for illegal or commercial inducements, nor does he intend to replace official products from Hypergryph/Gryphline in any way.**
+
+
+P.S. If you want to participate in localization, you can create a pull request with the localization language. You can use the en-US localization as template
