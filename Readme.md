@@ -5,6 +5,9 @@ Idk what else to write here... Still in early development ¯\\_(ツ)_/¯<br>
 <br>
 
 #### Huge thanks to [CloudTronUSA](https://github.com/CloudTronUSA) for inspiration and game archive link :)
+<br>
+<br>
+P.S. If you want to participate in localization, you can create a pull request with the localization language. You can use the en-US localization as template
 
 ---
 # Some screenshots
