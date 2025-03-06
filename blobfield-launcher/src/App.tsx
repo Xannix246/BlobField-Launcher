@@ -21,7 +21,7 @@ const App = () => {
         try {
             const update = await check({ target: "windows-x86_64"});
     
-            if(update !== null) setMessage(t('updateMessage', {version: update?.version, currentVersion: await getVersion(), date: update?.date?.split(" ")[0].split("-").reverse().join(" ")}));
+            if(update !== null) setMessage(t('update', {version: update?.version, currentVersion: await getVersion(), date: update?.date?.split(" ")[0].split("-").reverse().join(" ")}));
         } catch {
             console.log(t("update fail"));
         }
