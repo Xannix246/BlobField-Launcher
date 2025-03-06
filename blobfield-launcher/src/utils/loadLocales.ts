@@ -9,7 +9,7 @@ export const loadLocales = async () => {
     const translations: Record<string, any> = {};
     for (const file of files) {
       if (file.name?.endsWith(".json")) {
-        const lang = file.name.replace(".json", ""); // "en.json" -> "en"
+        const lang = file.name.replace(".json", "");
         const content = await readTextFile(`${LOCALES_PATH}/${file.name}`, {
           baseDir: BaseDirectory.Resource,
         });

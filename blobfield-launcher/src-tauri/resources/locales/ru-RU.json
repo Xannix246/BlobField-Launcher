@@ -1,10 +1,10 @@
 {
     "ru-RU": "Русский (Russian)",
     "update fail": "Не удалось получить обновление",
-    "update": "Найдено обновление {{version}} (текущая версия: {{currentVersion}}) от {{date}}. Установить?",
+    "update": "Найдена новая версия: {{version}} (текущая версия: {{currentVersion}}) от {{date}}. Установить?",
     "launcher version": "Версия лаунчера: {{version}}",
 
-    "file check start": "Начинаем проверку...",
+    "file check start": "Начало проверки...",
     "file check done": "Готово!",
     "file checking": "Проверка файлов...",
     "file checking stat": "{{progress}}% | Проверено: {{checked}}/{{totalFiles}} файлов",
@@ -18,7 +18,7 @@
     "notification fixed": "{{count}} файлов были повреждены или отсутствовали и были загружены заново",
     "nofification download failed": "Не удалось загрузить файлы",
 
-    "start download": "Начинаем загрузку...",
+    "start download": "Начало загрузки...",
     "start extract": "Распаковка файлов...",
     "download message": "Загрузка ресурсов...",
     "download stat": "{{progress}}% ({{speed}}) | Общий размер: {{totalSize}} MB",
@@ -30,10 +30,10 @@
     "notification download fail body": "Ошибка распаковки: {{error}}",
 
     "release notes": "Список изменений",
-    "update deny": "Может быть, позже",
-    "update accept": "Да!",
+    "update deny": "Попозже",
+    "update accept": "Ага",
 
-    "directory fail": "Не удалось загрузить каталог игры",
+    "directory fail": "Не удалось загрузить директорию игры",
     "start fail": "Не удалось запустить игру",
     "running": "Игра запущена",
     "scanning": "Сканирование",
@@ -65,12 +65,14 @@
     "hide logo": "Скрыть логотип",
     "hide images": "Скрыть изображения новостей",
     "hide news": "Скрыть новости",
-    "restart": "Перезапустить лаунчер",
+    "apply": "Применить",
     "general": "Общие",
     "general label": "Общие настройки",
     "select language": "Выбрать язык лаунчера",
     "wip": "Работа в процессе",
-    "about": "О программе",
+    "about": "О лаунчере",
     "awesome launcher": "Крутой лаунчер 3000",
-    "github link": "Ссылка на GitHub"
+    "github link": "Ссылка на GitHub",
+    "change bg": "Сменить фон",
+    "select file": "Выбрать файл"
 }

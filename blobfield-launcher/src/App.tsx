@@ -2,7 +2,7 @@ import "./css/App.css";
 import "./css/text.css";
 import { getVersion } from '@tauri-apps/api/app';
 import { useEffect, useState } from "react";
-import { CheckFileIntegrity, Config, DownloadManager, update, UpdatePopup, useUiStore } from "@utils/index";
+import { CheckFileIntegrity, Config, DownloadManager, getBgUrl, update, UpdatePopup, useUiStore } from "@utils/index";
 import { GameButton, LeftBar, NewsBlock, Settings, TopBar } from "@modules/index";
 import { check, Update } from "@tauri-apps/plugin-updater";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 const App = () => {
     const [version, setVersion] = useState("");
     const [message, setMessage] = useState("");
+    const [bgImage, setBgImage] = useState("");
     const [config, setConfig] = useState<UiConfig>();
     const { isUpdated } = useUiStore();
     const { t } = useTranslation();
@@ -33,13 +34,15 @@ const App = () => {
     useEffect(() => {
         ver();
         (async () => {
+                setBgImage(await getBgUrl());
                 setConfig(await new Config().getUiConfig());
             }
         )();
     }, [isUpdated]);
 
     return (
-        <div className="h-screen w-full bg-[url(/src/assets/base_bg.jpg)] bg-center bg-no-repeat bg-cover font-default">
+        <div className={`relative h-screen w-full font-default`}>
+            <img src={bgImage} className="absolute" draggable={false}/>
             {!config?.hideLogo && <div className="absolute w-[320px] h-[200px] bg-center bg-[url(/src/assets/logo_white.png)] bg-no-repeat bg-cover mx-24 my-12"/>}
             {message !== "" && <UpdatePopup 
                 message={message}

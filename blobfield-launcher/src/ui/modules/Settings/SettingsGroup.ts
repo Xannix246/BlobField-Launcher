@@ -1,5 +1,7 @@
+import { BaseDirectory, join, resourceDir } from "@tauri-apps/api/path";
+import { open } from "@tauri-apps/plugin-dialog";
+import { copyFile, exists, mkdir } from "@tauri-apps/plugin-fs";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { relaunch } from "@tauri-apps/plugin-process";
 import Config from "@utils/ConfigManager";
 import { i18n } from "i18next";
 
@@ -81,10 +83,37 @@ export const getSettingsConfig = async (t: Function, languages: string[], i18n: 
                 },
                 {
                     type: "info",
-                    value: t("restart"),
+                    label: t("change bg"),
+                    labelStyle: "flex-1",
+                    containerStyle: "flex",
+                    value: t("select file"),
+                    style: "flex-2 cursor-pointer hover:text-ak-yellow hover:underline",
+                    onEvent: async () => {
+                        const filePath = await open({
+                            multiple: false,
+                            directory: false,
+                            filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg"] }],
+                        });
+                    
+                        if (!filePath) return new Config().setValue("bgImage", "");
+                        const resourcePath = await join("resources/assets", filePath.split("\\").pop() as string);
+                        
+                        try {
+                            if(!await exists("resources/assets", { baseDir: BaseDirectory.Resource })) await mkdir("resources/assets", { baseDir: BaseDirectory.Resource });
+                            await copyFile(filePath, resourcePath, { toPathBaseDir: BaseDirectory.Resource });
+                            await new Config().setValue("bgImage", await join(await resourceDir(), "resources/assets", filePath.split("\\").pop() as string));
+                        } catch (error) {
+                            console.error("Failed to copy file:", error);
+                        }
+                    
+                    }
+                },
+                {
+                    type: "info",
+                    value: t("apply"),
                     style: "p-3 bg-ak-yellow rounded-lg transition duration-150 hover:bg-[#cccc00] cursor-pointer",
                     containerStyle: "flex float-right",
-                    onEvent: relaunch
+                    onEvent: () => window.location.reload()
                 }
             ],
             style: "p-2"

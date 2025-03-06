@@ -65,12 +65,14 @@
     "hide logo": "Hide logo",
     "hide images": "Hide news images",
     "hide news": "Hide news",
-    "restart": "Restart launcher",
+    "apply": "Apply",
     "general": "General",
     "general label": "General settings",
     "select language": "Select launcher language",
     "wip": "Work in progress",
     "about": "About",
     "awesome launcher": "Awesome launcher 3000",
-    "github link": "Github link"
+    "github link": "Github link",
+    "change bg": "Change background",
+    "select file": "Select file"
 }

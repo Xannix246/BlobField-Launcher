@@ -3,6 +3,7 @@ import { sendNotification } from "@tauri-apps/plugin-notification";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Config } from "@utils/index";
 import { create } from "zustand";
+import { exists, readFile } from "@tauri-apps/plugin-fs";
 
 const config = new Config();
 
@@ -45,4 +46,23 @@ export async function customDirectory() {
 export async function getInstallerConfig(): Promise<InstallerConfig> {
     const response = await fetch("https://raw.githubusercontent.com/Xannix246/BlobField-Launcher/refs/heads/main/online-data/config.json", { method: "GET" });
     return await JSON.parse(await response.text());
+}
+
+export async function getBgUrl(): Promise<string> {
+    const image: string = await config.getValue("bgImage");
+    try {
+        if (await exists(image)) {
+            const data = await readFile(image);
+            const type = image.endsWith(".jpg") ? "jpg" : image.endsWith(".jpeg") ? "jpeg" : "png";
+            const blob = new Blob([data], { type: `image/${type}` });
+            return URL.createObjectURL(blob);
+        }
+    } catch {}
+
+    const getImage = await fetch("https://raw.githubusercontent.com/Xannix246/BlobField-Launcher/main/online-data/default.jpg", { method: "HEAD" });
+    if(getImage.ok) {
+        return getImage.url;
+    }
+
+    return "/src/assets/base_bg.jpg";
 }

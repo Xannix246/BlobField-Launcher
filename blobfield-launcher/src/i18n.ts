@@ -6,12 +6,13 @@ export const initI18n = async () => {
     const resources = await loadLocales();
     const config = new Config();
     const language = (await config.getUiConfig()).language;
+    const languages = Object.keys(resources);
 
     i18n.use(initReactI18next).init({
         resources,
-        fallbackLng: Object.keys(resources),
+        fallbackLng: languages,
         interpolation: { escapeValue: false },
-        lng: language,
+        lng: languages.includes(language as string) ? language : "en-US",
         load: "currentOnly",
     });
 };
