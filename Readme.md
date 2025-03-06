@@ -8,7 +8,7 @@ Idk what else to write here... Still in early development ¯\\_(ツ)_/¯<br>
 <br>
 <br>
 
-P.S. If you want to participate in localization, you can create a pull request with the localization language. You can use the [en-US](blobfield-launcher/src-tauri/resources/locales) localization as template
+P.S. If you want to participate in localization, you can create a pull request with the localization language. You can use the [en-US](blobfield-launcher/src-tauri/resources/locales/en-US.json) localization as template
 
 ---
 # Some screenshots
