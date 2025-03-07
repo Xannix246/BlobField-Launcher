@@ -10,6 +10,7 @@ use std::fs;
 use std::os::windows::process::CommandExt;
 use std::process::{Command, Stdio};
 use std::sync::Mutex;
+use regex::Regex;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -78,6 +79,21 @@ async fn check_integrity(
         .emit("integrity_progress", "Checking complete!")
         .unwrap();
     Ok(missing_files)
+}
+
+#[tauri::command]
+fn get_game_version(game_dir: String) -> String {
+    let path = Path::new(&game_dir).join("Endfield_TBeta_OS_Data\\globalgamemanagers");
+
+    if let Ok(content) = fs::read(&path) {
+        let text = String::from_utf8_lossy(&content);
+        let re = Regex::new(r"\b\d+\.\d+\.\d+\b").unwrap();
+        if let Some(version) = re.find(&text) {
+            return version.as_str().to_string();
+        }
+    }
+
+    "Unknown".to_string()
 }
 
 fn hash_file(path: &Path) -> Result<String, std::io::Error> {
@@ -361,7 +377,8 @@ fn main() {
             run_game,
             download_file,
             extract_archive,
-            check_integrity
+            check_integrity,
+            get_game_version
         ])
         .run(tauri::generate_context!())
         .expect("Err");

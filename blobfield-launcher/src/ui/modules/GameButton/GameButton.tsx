@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { useState, useEffect } from "react";
 import { CgMenu } from "react-icons/cg";
 import { exists, BaseDirectory, readDir } from '@tauri-apps/plugin-fs';
-import { getFullPath, useDownloadStore, customDirectory, setDefaultDirectory, UseIntegrityStore } from "@utils/index";
+import { getFullPath, useDownloadStore, customDirectory, setDefaultDirectory, UseIntegrityStore, Config, getInstallerConfig } from "@utils/index";
 import { Button } from "@base/index";
 import clsx from "clsx";
 import { sendNotification } from "@tauri-apps/plugin-notification";
@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export default function GameButton() {
     const { startDownload, isDownloading } = useDownloadStore();
-    const { startScan, isScanning } = UseIntegrityStore();
+    const { startScan, isScanning, needUpdate, setNeedUpdate } = UseIntegrityStore();
     const [isRunning, setIsRunning] = useState(false);
     const [isInstalled, setInstalled] = useState(false);
     const [hasArchive, setHasArchive] = useState(false);
@@ -21,6 +21,7 @@ export default function GameButton() {
     const { t } = useTranslation();
 
     const updateGameStatus = async () => {
+        setNeedUpdate(Number((await invoke("get_game_version", { gameDir: await new Config().getValue("gamePath") as string }) as string).split(".")[2]) < Number((await getInstallerConfig()).GAME_VERSION?.split(".")[2]) || false)
         try {
             const installed = await exists(await getFullPath());
             setInstalled(installed);
@@ -53,8 +54,7 @@ export default function GameButton() {
         }
     }, [editedDirectory]);
 
-    useEffect(() => { updateGameStatus() }, [isDownloading]);
-    useEffect(() => { updateGameStatus() }, [isScanning]);
+    useEffect(() => { updateGameStatus() }, [isDownloading, isScanning]);
 
     const startGame = async () => {
         try {
@@ -68,66 +68,82 @@ export default function GameButton() {
 
     return (
         <div className="w-full flex">
-            {
-                isInstalled ? (
+            {needUpdate ? (
+                <Button
+                    color="yellow"
+                    style={className}
+                    disabled={isScanning}
+                    onClick={async () => {
+                        if (!isScanning) {
+                            startScan();
+                            setNeedUpdate(false);
+                        }
+                    }}
+                >{isScanning ? t("updating") : t("update btn")}</Button>
+            ) : (
+                <>
+                    {
+                        isInstalled ? (
+                            <Button
+                                color="yellow"
+                                style={className}
+                                disabled={isRunning || isScanning}
+                                onClick={startGame}
+                            >{isRunning ? t("running") : (isScanning ? t("scanning") : t("run"))}</Button>
+                        ) : (
+                            <Button
+                                color="yellow"
+                                style={className}
+                                disabled={isDownloading || isScanning}
+                                onClick={startDownload}
+                            >{isDownloading ? t("installing") : (hasArchive ? t("continue") : (isScanning ? t("scanning") : t("install")))}</Button>
+                        )
+                    }
                     <Button
-                        color="yellow"
-                        style={className}
-                        disabled={isRunning || isScanning}
-                        onClick={startGame}
-                    >{isRunning ? t("running") : (isScanning ? t("scanning") : t("run"))}</Button>
-                ) : (
-                    <Button
-                        color="yellow"
-                        style={className}
-                        disabled={isDownloading || isScanning}
-                        onClick={startDownload}
-                    >{isDownloading ? t("installing") : (hasArchive ? t("continue") : (isScanning ? t("scanning") : t("install")))}</Button>
-                )
-            }
-            {<Button
-                color="yellow" style="hover:bg-[#cccc00] cursor-pointer transition duration-150 disabled:cursor-not-allowed disabled:bg-[#cccc00]"
-                disabled={isRunning || isDownloading || isScanning}
-            >
-                <div className="w-full h-full justify-center hover:bg-[#cccc00] transition duration-150" >
-                    <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger asChild>
-                            <div className="w-[24px] h-[24px]">
-                                <CgMenu className="w-full h-full" />
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverPortal>
-                            <PopoverContent className="text-white bg-[#202020]/50 shadow-lg border border-[#707070] backdrop-blur-sm text-black rounded w-56 z-50 mr-12">
-                                <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
-                                    onClick={async () => {
-                                        await setDefaultDirectory();
-                                        setEditedDirectory(true);
-                                        setOpen(false);
-                                    }}>
-                                    {t("default dir")}
-                                </div>
-                                <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
-                                    onClick={async () => {
-                                        await customDirectory();
-                                        setEditedDirectory(true);
-                                        setOpen(false);
-                                    }}>
-                                    {t("select path")}
-                                </div>
-                                <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
-                                    onClick={async () => {
-                                        if (!isScanning) {
-                                            startScan();
-                                        }
-                                        setOpen(false);
-                                    }}>
-                                    {t("check files")}
-                                </div>
-                            </PopoverContent>
-                        </PopoverPortal>
-                    </Popover>
-                </div>
-            </Button>}
+                        color="yellow" style="hover:bg-[#cccc00] cursor-pointer transition duration-150 disabled:cursor-not-allowed disabled:bg-[#cccc00]"
+                        disabled={isRunning || isDownloading || isScanning}
+                    >
+                        <div className="w-full h-full justify-center hover:bg-[#cccc00] transition duration-150" >
+                            <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                    <div className="w-[24px] h-[24px]">
+                                        <CgMenu className="w-full h-full" />
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverPortal>
+                                    <PopoverContent className="text-white bg-[#202020]/50 shadow-lg border border-[#707070] backdrop-blur-sm text-black rounded w-56 z-50 mr-12">
+                                        <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
+                                            onClick={async () => {
+                                                await setDefaultDirectory();
+                                                setEditedDirectory(true);
+                                                setOpen(false);
+                                            }}>
+                                            {t("default dir")}
+                                        </div>
+                                        <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
+                                            onClick={async () => {
+                                                await customDirectory();
+                                                setEditedDirectory(true);
+                                                setOpen(false);
+                                            }}>
+                                            {t("select path")}
+                                        </div>
+                                        <div className="w-full hover:bg-black/25 transition duration-150 cursor-pointer p-3"
+                                            onClick={async () => {
+                                                if (!isScanning) {
+                                                    startScan();
+                                                }
+                                                setOpen(false);
+                                            }}>
+                                            {t("check files")}
+                                        </div>
+                                    </PopoverContent>
+                                </PopoverPortal>
+                            </Popover>
+                        </div>
+                    </Button>
+                </>
+            )}
         </div>
     );
 }

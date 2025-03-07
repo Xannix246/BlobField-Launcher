@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { BaseDirectory, join, resourceDir } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/plugin-dialog";
 import { copyFile, exists, mkdir } from "@tauri-apps/plugin-fs";
@@ -12,10 +13,10 @@ const getUiConfig = async () => {
 
 export const getSettingsConfig = async (t: Function, languages: string[], i18n: i18n, setSelectedGroup: (value: string) => void): Promise<SettingsGroup[]> => {
     const config = await getUiConfig();
+    const gameVersion = await invoke("get_game_version", { gameDir: await new Config().getValue("gamePath") as string });
     const languagesMap: Record<string, string> = Object.fromEntries(
         languages.map(lang => [t(lang), lang])
     );
-    
     
     return [
         {
@@ -84,10 +85,10 @@ export const getSettingsConfig = async (t: Function, languages: string[], i18n: 
                 {
                     type: "info",
                     label: t("change bg"),
-                    labelStyle: "flex-1",
+                    labelStyle: "flex-1 w-full",
                     containerStyle: "flex",
                     value: t("select file"),
-                    style: "flex-2 cursor-pointer hover:text-ak-yellow hover:underline",
+                    style: "cursor-pointer hover:text-ak-yellow hover:underline flex w-fit",
                     onEvent: async () => {
                         const filePath = await open({
                             multiple: false,
@@ -145,6 +146,7 @@ export const getSettingsConfig = async (t: Function, languages: string[], i18n: 
             name: t("about"),
             settings: [
                 { type: "info", value: t("awesome launcher"), style: "text-center" },
+                { type: "info", value: gameVersion != "Unknown" && `Game version: ${gameVersion}`, style: "text-center" },
                 {
                     type: "info",
                     value: ("github link"),

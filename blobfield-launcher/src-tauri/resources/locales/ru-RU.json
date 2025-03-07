@@ -74,5 +74,8 @@
     "awesome launcher": "Крутой лаунчер 3000",
     "github link": "Ссылка на GitHub",
     "change bg": "Сменить фон",
-    "select file": "Выбрать файл"
+    "select file": "Выбрать файл",
+
+    "update btn": "Обновить",
+    "updating": "Обновление..."
 }

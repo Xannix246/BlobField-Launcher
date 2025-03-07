@@ -15,6 +15,8 @@ export const UseIntegrityStore = create<IntegrityState>((set) => ({
     message: "",
     stats: "",
     isScanning: false,
+    needUpdate: false,
+    setNeedUpdate: (needUpdate) => set({ needUpdate }),
     setProgress: (progress) => set({ progress }),
     setStats: (stats) => set({ stats }),
     setMessage: (message) => set({ message }),
@@ -25,7 +27,7 @@ export const UseIntegrityStore = create<IntegrityState>((set) => ({
 const CheckFileIntegrity = () => {
     const { t } = useTranslation();
 
-    const { progress, message, stats, isScanning, setProgress, setMessage, setStats, stopScan } = UseIntegrityStore();
+    const { progress, message, stats, isScanning, setProgress, setMessage, setStats, stopScan, needUpdate, setNeedUpdate } = UseIntegrityStore();
     const [visible, setVisible] = useState(true);
     const [files, setFiles] = useState("");
     const [BaseConfig, setBaseConfig] = useState<InstallerConfig>();
@@ -140,7 +142,8 @@ const CheckFileIntegrity = () => {
                 stopScan();
                 setMessage(t("file check done"));
                 setVisible(false);
-                sendNotification({ title: t("notification completed body"), body: (res as Array<string>).length === 0 ? t("notification completed") : t("notification fixed", {count: (res as Array<string>).length}) });
+                !needUpdate && sendNotification({ title: t("notification completed body"), body: (res as Array<string>).length === 0 ? t("notification completed") : t("notification fixed", {count: (res as Array<string>).length}) });
+                setNeedUpdate(false);
             } catch (err) {
                 sendNotification({ title: t("nofification download failed"), body: `${err}` });
             }

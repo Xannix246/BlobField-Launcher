@@ -74,5 +74,8 @@
     "awesome launcher": "Awesome launcher 3000",
     "github link": "Github link",
     "change bg": "Change background",
-    "select file": "Select file"
+    "select file": "Select file",
+
+    "update btn": "Update",
+    "updating": "Updating..."
 }

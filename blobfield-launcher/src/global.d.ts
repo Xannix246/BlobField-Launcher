@@ -75,6 +75,8 @@ declare type IntegrityState = {
     message: string;
     stats: string;
     isScanning: boolean;
+    needUpdate: boolean;
+    setNeedUpdate: (active: boolean) => void;
     setProgress: (progress: number) => void;
     setStats: (stats: string | undefined) => void;
     setMessage: (message: string) => void;
@@ -88,6 +90,7 @@ declare type UiUpdateState = {
 }
 
 declare type InstallerConfig = {
+    GAME_VERSION: string;
     BASE_URL: string;
     FILE_NAME: string;
     FILE_COUNT: number;
