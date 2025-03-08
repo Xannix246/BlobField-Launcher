@@ -1,5 +1,11 @@
 [
     {
+        "data": "Campofinale",
+        "time": "2025-03-08 15:00:00",
+        "url": "https://github.com/Campofinale/Campofinale",
+        "desc": "Campofinale moved to a new repository. Stay tuned for updates :)"
+    },
+    {
         "data": "v0.8.0 Release",
         "time": "2025-03-06 22:59:00",
         "url": "https://github.com/Xannix246/BlobField-Launcher/releases/tag/app-v0.8.0",
